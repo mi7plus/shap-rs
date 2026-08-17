@@ -1,0 +1,13 @@
+[package]
+name = "shap-rs"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "shap_rs"
+path = "src/lib.rs"
+
+[dependencies]
+nalgebra = "0.33"
+rand = "0.8"
+rayon = "1.10"

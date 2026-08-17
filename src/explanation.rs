@@ -1,8 +1,17 @@
 use crate::{FeatureMetadata, OutputMetadata, Result, ShapError};
 use ndarray::{Array2, Array3, ArrayView2, ArrayView3, Axis};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
+pub enum AttributionSemantics {
+    #[default]
+    Unspecified,
+    Interventional,
+    Conditional,
+    TreePathDependent,
+    CausalAsymmetric,
+}
 /// SHAP values `(samples, features, outputs)`, reference values, and explained data.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Explanation {
     schema_version: u32,
     values: Array3<f64>,
@@ -10,15 +19,97 @@ pub struct Explanation {
     data: Array2<f64>,
     feature_metadata: Option<FeatureMetadata>,
     output_metadata: Option<OutputMetadata>,
+    semantics: AttributionSemantics,
 }
 /// An explanation accompanied by per-attribution Monte-Carlo standard errors.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct UncertainExplanation {
     explanation: Explanation,
     standard_errors: Array3<f64>,
     repeats: usize,
 }
+#[derive(Deserialize)]
+struct ExplanationPayload {
+    schema_version: u32,
+    values: Array3<f64>,
+    base_values: Array2<f64>,
+    data: Array2<f64>,
+    feature_metadata: Option<FeatureMetadata>,
+    output_metadata: Option<OutputMetadata>,
+    #[serde(default)]
+    semantics: AttributionSemantics,
+}
+impl<'de> Deserialize<'de> for Explanation {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
+        let payload = ExplanationPayload::deserialize(deserializer)?;
+        if payload.schema_version != 1 {
+            return Err(serde::de::Error::custom(format!(
+                "unsupported explanation schema version {}",
+                payload.schema_version
+            )));
+        }
+        let mut value = Self::new(payload.values, payload.base_values, payload.data)
+            .map_err(serde::de::Error::custom)?;
+        if let Some(metadata) = payload.feature_metadata {
+            value = value
+                .with_feature_metadata(metadata)
+                .map_err(serde::de::Error::custom)?;
+        }
+        if let Some(metadata) = payload.output_metadata {
+            value = value
+                .with_output_metadata(metadata)
+                .map_err(serde::de::Error::custom)?;
+        }
+        value.semantics = payload.semantics;
+        Ok(value)
+    }
+}
+#[derive(Deserialize)]
+struct UncertainExplanationPayload {
+    explanation: Explanation,
+    standard_errors: Array3<f64>,
+    repeats: usize,
+}
+impl<'de> Deserialize<'de> for UncertainExplanation {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
+        let payload = UncertainExplanationPayload::deserialize(deserializer)?;
+        Self::new(
+            payload.explanation,
+            payload.standard_errors,
+            payload.repeats,
+        )
+        .map_err(serde::de::Error::custom)
+    }
+}
 impl UncertainExplanation {
+    pub fn concatenate(parts: &[Self]) -> Result<Self> {
+        if parts.is_empty() {
+            return Err(ShapError::EmptyData);
+        }
+        for part in parts {
+            part.validate()?;
+        }
+        let repeats = parts[0].repeats;
+        if parts.iter().any(|part| part.repeats != repeats) {
+            return Err(ShapError::InvalidConfiguration(
+                "uncertain explanations must have identical repeat counts".into(),
+            ));
+        }
+        let explanations = parts
+            .iter()
+            .map(|p| p.explanation.clone())
+            .collect::<Vec<_>>();
+        let error_views = parts
+            .iter()
+            .map(|p| p.standard_errors.view())
+            .collect::<Vec<_>>();
+        Self::new(
+            Explanation::concatenate(&explanations)?,
+            ndarray::concatenate(Axis(0), &error_views)
+                .map_err(|error| ShapError::Other(error.to_string()))?,
+            repeats,
+        )
+    }
     pub fn new(
         explanation: Explanation,
         standard_errors: Array3<f64>,
@@ -74,6 +165,33 @@ impl UncertainExplanation {
     pub fn into_explanation(self) -> Explanation {
         self.explanation
     }
+    pub fn select_samples(&self, indices: &[usize]) -> Result<Self> {
+        self.validate()?;
+        validate_indices(indices, self.explanation.n_samples(), "sample")?;
+        Self::new(
+            self.explanation.select_samples(indices)?,
+            self.standard_errors.select(Axis(0), indices),
+            self.repeats,
+        )
+    }
+    pub fn select_features(&self, indices: &[usize]) -> Result<Self> {
+        self.validate()?;
+        validate_indices(indices, self.explanation.n_features(), "feature")?;
+        Self::new(
+            self.explanation.select_features(indices)?,
+            self.standard_errors.select(Axis(1), indices),
+            self.repeats,
+        )
+    }
+    pub fn select_output(&self, output: usize) -> Result<Self> {
+        self.validate()?;
+        validate_indices(&[output], self.explanation.n_outputs(), "output")?;
+        Self::new(
+            self.explanation.select_output(output)?,
+            self.standard_errors.select(Axis(2), &[output]),
+            self.repeats,
+        )
+    }
     pub fn confidence_interval(&self, z_score: f64) -> Result<(Array3<f64>, Array3<f64>)> {
         self.validate()?;
         if !z_score.is_finite() || z_score < 0. {
@@ -103,6 +221,7 @@ impl Explanation {
                 || e.n_outputs() != outputs
                 || e.feature_metadata != parts[0].feature_metadata
                 || e.output_metadata != parts[0].output_metadata
+                || e.semantics != parts[0].semantics
         }) {
             return Err(ShapError::DimensionMismatch {
                 expected: "explanations with identical feature/output dimensions and metadata"
@@ -125,6 +244,7 @@ impl Explanation {
         let mut result = Self::new(values, bases, data)?;
         result.feature_metadata = parts[0].feature_metadata.clone();
         result.output_metadata = parts[0].output_metadata.clone();
+        result.semantics = parts[0].semantics;
         Ok(result)
     }
     pub fn new(values: Array3<f64>, base_values: Array2<f64>, data: Array2<f64>) -> Result<Self> {
@@ -166,6 +286,7 @@ impl Explanation {
             data,
             feature_metadata: None,
             output_metadata: None,
+            semantics: AttributionSemantics::Unspecified,
         })
     }
     pub fn values(&self) -> ArrayView3<'_, f64> {
@@ -244,6 +365,7 @@ impl Explanation {
         )?;
         out.feature_metadata = self.feature_metadata.clone();
         out.output_metadata = self.output_metadata.clone();
+        out.semantics = self.semantics;
         Ok(out)
     }
     pub fn select_features(&self, indices: &[usize]) -> Result<Self> {
@@ -255,6 +377,7 @@ impl Explanation {
             self.data.select(Axis(1), indices),
         )?;
         out.output_metadata = self.output_metadata.clone();
+        out.semantics = self.semantics;
         if let Some(m) = &self.feature_metadata {
             out.feature_metadata = Some(FeatureMetadata {
                 names: indices.iter().map(|&j| m.names[j].clone()).collect(),
@@ -283,6 +406,7 @@ impl Explanation {
             self.data.clone(),
         )?;
         out.feature_metadata = self.feature_metadata.clone();
+        out.semantics = self.semantics;
         if let Some(m) = &self.output_metadata {
             out.output_metadata = Some(OutputMetadata {
                 names: vec![m.names[output].clone()],
@@ -330,6 +454,13 @@ impl Explanation {
         }
         self.output_metadata = Some(metadata);
         Ok(self)
+    }
+    pub fn with_semantics(mut self, semantics: AttributionSemantics) -> Self {
+        self.semantics = semantics;
+        self
+    }
+    pub fn semantics(&self) -> AttributionSemantics {
+        self.semantics
     }
     pub fn feature_names(&self) -> Option<&[String]> {
         self.feature_metadata.as_ref().map(|m| m.names.as_slice())
@@ -471,6 +602,39 @@ mod uncertainty_tests {
             repeats: 1,
         };
         assert!(malformed.confidence_interval(1.96).is_err());
+    }
+
+    #[test]
+    fn selections_and_concatenation_preserve_uncertainty() {
+        let explanation = Explanation::new(
+            Array3::from_shape_vec((2, 2, 2), (0..8).map(f64::from).collect()).unwrap(),
+            ndarray::array![[0., 1.], [2., 3.]],
+            ndarray::array![[10., 20.], [30., 40.]],
+        )
+        .unwrap()
+        .with_feature_names(vec!["a".into(), "b".into()])
+        .unwrap()
+        .with_output_names(vec!["x".into(), "y".into()])
+        .unwrap();
+        let uncertain =
+            UncertainExplanation::new(explanation, Array3::from_elem((2, 2, 2), 0.5), 4).unwrap();
+        let selected = uncertain
+            .select_samples(&[1])
+            .unwrap()
+            .select_features(&[0])
+            .unwrap()
+            .select_output(1)
+            .unwrap();
+        assert_eq!(selected.standard_errors().dim(), (1, 1, 1));
+        assert_eq!(selected.explanation().feature_names().unwrap(), &["a"]);
+        let halves = [
+            uncertain.select_samples(&[0]).unwrap(),
+            uncertain.select_samples(&[1]).unwrap(),
+        ];
+        assert_eq!(
+            UncertainExplanation::concatenate(&halves).unwrap(),
+            uncertain
+        );
     }
 }
 #[cfg(test)]

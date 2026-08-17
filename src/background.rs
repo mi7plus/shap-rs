@@ -20,9 +20,21 @@ use crate::error::{Result, ShapError};
 /// ```text
 /// (n_background_samples, n_features)
 /// ```
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct Background {
     data: Array2<f64>,
+}
+#[derive(serde::Deserialize)]
+struct BackgroundPayload {
+    data: Array2<f64>,
+}
+impl<'de> serde::Deserialize<'de> for Background {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        let payload = <BackgroundPayload as serde::Deserialize>::deserialize(deserializer)?;
+        Self::new(payload.data).map_err(serde::de::Error::custom)
+    }
 }
 
 impl Background {

@@ -3,6 +3,8 @@ pub mod beeswarm;
 pub mod decision;
 pub mod force;
 pub mod heatmap;
+pub mod html;
+pub mod interaction;
 pub mod scatter;
 pub mod svg;
 pub mod waterfall;

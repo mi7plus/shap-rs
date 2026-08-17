@@ -69,6 +69,10 @@ impl<M: Predict, K: Masker> SamplingExplainer<M, K> {
                 "uncertainty estimation requires at least two repeats".into(),
             ));
         }
+        crate::error::checked_f64_shape(
+            &[repeats, x.nrows(), x.ncols()],
+            "sampling uncertainty runs",
+        )?;
         let mut runs = Vec::with_capacity(repeats);
         for r in 0..repeats {
             runs.push(

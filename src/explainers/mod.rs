@@ -12,7 +12,7 @@ mod sampling;
 mod tree;
 pub use additive::AdditiveExplainer;
 pub use auto::{AutoAlgorithm, AutoExplainer};
-pub use causal::{CausalExplainer, CausalGraph};
+pub use causal::{CausalExplainer, CausalGraph, CausalMaskingMode, CausalTabularMasker};
 pub use deep::DeepExplainer;
 pub use exact::ExactExplainer;
 pub use gradient::GradientExplainer;
@@ -24,4 +24,4 @@ pub use partition::{
 };
 pub use permutation::PermutationExplainer;
 pub use sampling::SamplingExplainer;
-pub use tree::TreeExplainer;
+pub use tree::{InterventionalTreeExplainer, TreeExplainer};

@@ -95,6 +95,54 @@ pub enum ExecutionDevice {
 pub trait AcceleratedPredict: Predict {
     fn predict_on(&self, x: ArrayView2<'_, f64>, device: ExecutionDevice) -> Result<Array2<f64>>;
 }
+/// Adapts a device-aware prediction closure into an accelerated model.
+///
+/// Ordinary [`Predict`] calls use [`ExecutionDevice::Cpu`]; bind another
+/// device with [`DeviceModel`] when passing the model to an explainer.
+pub struct FnAcceleratedModel<F> {
+    predict_fn: F,
+    n_features: Option<usize>,
+    n_outputs: Option<usize>,
+}
+impl<F> FnAcceleratedModel<F> {
+    pub fn new(predict_fn: F) -> Self {
+        Self {
+            predict_fn,
+            n_features: None,
+            n_outputs: None,
+        }
+    }
+    pub fn with_n_features(mut self, n_features: usize) -> Self {
+        self.n_features = Some(n_features);
+        self
+    }
+    pub fn with_n_outputs(mut self, n_outputs: usize) -> Self {
+        self.n_outputs = Some(n_outputs);
+        self
+    }
+}
+impl<F> Predict for FnAcceleratedModel<F>
+where
+    F: Fn(ArrayView2<'_, f64>, ExecutionDevice) -> Result<Array2<f64>>,
+{
+    fn predict(&self, x: ArrayView2<'_, f64>) -> Result<Array2<f64>> {
+        (self.predict_fn)(x, ExecutionDevice::Cpu)
+    }
+    fn n_features(&self) -> Option<usize> {
+        self.n_features
+    }
+    fn n_outputs(&self) -> Option<usize> {
+        self.n_outputs
+    }
+}
+impl<F> AcceleratedPredict for FnAcceleratedModel<F>
+where
+    F: Fn(ArrayView2<'_, f64>, ExecutionDevice) -> Result<Array2<f64>>,
+{
+    fn predict_on(&self, x: ArrayView2<'_, f64>, device: ExecutionDevice) -> Result<Array2<f64>> {
+        (self.predict_fn)(x, device)
+    }
+}
 /// Binds an accelerated model to a device while retaining the ordinary
 /// [`Predict`] interface consumed by every explainer.
 pub struct DeviceModel<'a, M> {
@@ -222,6 +270,23 @@ mod tests {
         assert_eq!(predictions.shape(), &[2, 1]);
         assert_eq!(predictions[[0, 0]], 3.0);
         assert_eq!(predictions[[1, 0]], 7.0);
+    }
+
+    #[test]
+    fn accelerated_closure_receives_bound_device() {
+        let model = FnAcceleratedModel::new(|x: ArrayView2<'_, f64>, device| {
+            let offset = if device == ExecutionDevice::Cuda(2) {
+                10.0
+            } else {
+                0.0
+            };
+            Ok(Array2::from_shape_fn((x.nrows(), 1), |(i, _)| {
+                x[[i, 0]] + offset
+            }))
+        });
+        let bound = DeviceModel::new(&model, ExecutionDevice::Cuda(2));
+        assert_eq!(bound.predict(array![[3.0]].view()).unwrap()[[0, 0]], 13.0);
+        assert_eq!(model.predict(array![[3.0]].view()).unwrap()[[0, 0]], 3.0);
     }
 
     #[test]

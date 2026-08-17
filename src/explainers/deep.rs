@@ -1,5 +1,5 @@
 use crate::{Background, DeepAttribution, Explainer, Explanation, Result, ShapError};
-use ndarray::{Array2, ArrayView2, Axis};
+use ndarray::{Array2, ArrayView2, Axis, Slice};
 /// Deep SHAP coordinator for framework adapters implementing multiplier
 /// propagation through their native computation graph.
 pub struct DeepExplainer<M> {
@@ -7,6 +7,7 @@ pub struct DeepExplainer<M> {
     background: Background,
     check_additivity: bool,
     tolerance: f64,
+    batch_size: usize,
 }
 impl<M> DeepExplainer<M> {
     pub fn new(model: M, background: Background) -> Self {
@@ -15,6 +16,7 @@ impl<M> DeepExplainer<M> {
             background,
             check_additivity: true,
             tolerance: 1e-5,
+            batch_size: 256,
         }
     }
     pub fn with_additivity_check(mut self, enabled: bool) -> Self {
@@ -25,12 +27,18 @@ impl<M> DeepExplainer<M> {
         self.tolerance = t;
         self
     }
+    /// Limits explained samples submitted to the graph adapter in one call.
+    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
+        self.batch_size = batch_size;
+        self
+    }
 }
 impl<M: DeepAttribution> Explainer for DeepExplainer<M> {
     fn explain(&self, x: ArrayView2<'_, f64>) -> Result<Explanation> {
-        if !self.tolerance.is_finite() || self.tolerance < 0.0 {
+        if !self.tolerance.is_finite() || self.tolerance < 0.0 || self.batch_size == 0 {
             return Err(ShapError::InvalidConfiguration(
-                "Deep SHAP additivity tolerance must be finite and non-negative".into(),
+                "Deep SHAP tolerance must be finite and non-negative and batch size positive"
+                    .into(),
             ));
         }
         if x.nrows() == 0 {
@@ -60,6 +68,7 @@ impl<M: DeepAttribution> Explainer for DeepExplainer<M> {
             });
         }
         let base = bg_pred.mean_axis(Axis(0)).unwrap();
+        crate::error::checked_f64_shape(&[x.nrows(), x.ncols(), base.len()], "deep explanation")?;
         if self
             .model
             .n_outputs()
@@ -71,10 +80,33 @@ impl<M: DeepAttribution> Explainer for DeepExplainer<M> {
             });
         }
         let bases = Array2::from_shape_fn((x.nrows(), base.len()), |(_, o)| base[o]);
-        let values = self.model.deep_contributions(x, self.background.data())?;
+        let mut parts = Vec::new();
+        for start in (0..x.nrows()).step_by(self.batch_size) {
+            let end = start.saturating_add(self.batch_size).min(x.nrows());
+            parts.push(self.model.deep_contributions(
+                x.slice_axis(Axis(0), Slice::from(start..end)),
+                self.background.data(),
+            )?);
+        }
+        let views = parts.iter().map(|part| part.view()).collect::<Vec<_>>();
+        let values = ndarray::concatenate(Axis(0), &views)
+            .map_err(|error| ShapError::ModelError(error.to_string()))?;
         let e = Explanation::new(values, bases, x.to_owned())?;
         if self.check_additivity {
-            let prediction = self.model.predict(x)?;
+            let mut predictions = Vec::new();
+            for start in (0..x.nrows()).step_by(self.batch_size) {
+                let end = start.saturating_add(self.batch_size).min(x.nrows());
+                predictions.push(
+                    self.model
+                        .predict(x.slice_axis(Axis(0), Slice::from(start..end)))?,
+                );
+            }
+            let views = predictions
+                .iter()
+                .map(|part| part.view())
+                .collect::<Vec<_>>();
+            let prediction = ndarray::concatenate(Axis(0), &views)
+                .map_err(|error| ShapError::ModelError(error.to_string()))?;
             crate::metrics::check_additivity(&e, prediction.view(), self.tolerance)?
         }
         Ok(e)
@@ -123,5 +155,15 @@ mod tests {
             .with_tolerance(f64::NAN)
             .explain(array![[1., 1.]].view());
         assert!(matches!(result, Err(ShapError::InvalidConfiguration(_))));
+    }
+
+    #[test]
+    fn mini_batches_contributions_and_predictions() {
+        let e = DeepExplainer::new(Adapter, Background::new(array![[0., 0.]]).unwrap())
+            .with_batch_size(1)
+            .explain(array![[1., 2.], [3., 4.], [5., 6.]].view())
+            .unwrap();
+        assert_eq!(e.values().dim(), (3, 2, 1));
+        assert_eq!(e.reconstructed()[[2, 0]], 11.0);
     }
 }

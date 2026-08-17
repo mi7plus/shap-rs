@@ -1,0 +1,5154 @@
+{
+  "generator": {
+    "python_shap": "0.46.0",
+    "xgboost": "2.1.4",
+    "lightgbm": "4.6.0"
+  },
+  "xgboost_regression": {
+    "model": [
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 59.8500061,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 3.40833354,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.400000036,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.075000003,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "leaf": 1.32000005,
+            "cover": 4
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 35.1109657,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.72487497,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.42750001,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0187500045,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 1.34805679,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.43599999,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 1.23600006,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 22.9701385,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 1.95017266,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.363375008,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.014531252,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 0.862758636,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.348800004,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 0.988799989,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 15.0417786,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 1.39680219,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.308868766,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0112617202,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f1",
+            "split_condition": 1,
+            "yes": 5,
+            "no": 6,
+            "missing": 5,
+            "gain": 0.581687927,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.716669977,
+                "cover": 3
+              },
+              {
+                "nodeid": 6,
+                "leaf": 0.171780005,
+                "cover": 1
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 9.52028656,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 1.08648276,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.214479923,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0510914065,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 1.14834499,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.190195009,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 0.647705913,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "model_base": [
+      0.25
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        -1.4642237424850464
+      ],
+      [
+        3.261665105819702
+      ],
+      [
+        5.159176349639893
+      ]
+    ],
+    "values": [
+      [
+        [
+          -3.4175167083740234
+        ],
+        [
+          0.03405562415719032
+        ],
+        [
+          0.0
+        ]
+      ],
+      [
+        [
+          1.2402606010437012
+        ],
+        [
+          0.10216686129570007
+        ],
+        [
+          0.0
+        ]
+      ],
+      [
+        [
+          3.1377716064453125
+        ],
+        [
+          0.10216686129570007
+        ],
+        [
+          0.0
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        1.919237494468689
+      ],
+      [
+        1.919237494468689
+      ],
+      [
+        1.919237494468689
+      ]
+    ],
+    "interactions": [
+      [
+        [
+          [
+            -3.3834609985351562
+          ],
+          [
+            -0.03405562415719032
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            -0.03405570983886719
+          ],
+          [
+            0.06811133027076721
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            1.2062050104141235
+          ],
+          [
+            0.03405562415719032
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.03405565023422241
+          ],
+          [
+            0.06811121106147766
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ]
+      ],
+      [
+        [
+          [
+            3.1037158966064453
+          ],
+          [
+            0.03405562415719032
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.03405559062957764
+          ],
+          [
+            0.06811127066612244
+          ],
+          [
+            0.0
+          ]
+        ],
+        [
+          [
+            0.0
+          ],
+          [
+            0.0
+          ],
+          [
+            0.0
+          ]
+        ]
+      ]
+    ],
+    "base_margin": [
+      [
+        1.0
+      ],
+      [
+        -0.5
+      ],
+      [
+        2.5
+      ]
+    ],
+    "base_margin_prediction": [
+      [
+        -0.7142237424850464
+      ],
+      [
+        2.511665105819702
+      ],
+      [
+        7.409176349639893
+      ]
+    ]
+  },
+  "lightgbm_regression": {
+    "model": {
+      "name": "tree",
+      "version": "v4",
+      "num_class": 1,
+      "num_tree_per_iteration": 1,
+      "label_index": 0,
+      "max_feature_idx": 2,
+      "objective": "regression",
+      "average_output": false,
+      "feature_names": [
+        "Column_0",
+        "Column_1",
+        "Column_2"
+      ],
+      "monotone_constraints": [],
+      "feature_infos": {
+        "Column_0": {
+          "min_value": -2,
+          "max_value": 4,
+          "values": []
+        },
+        "Column_1": {
+          "min_value": -2,
+          "max_value": 2,
+          "values": []
+        },
+        "Column_2": {
+          "min_value": -2,
+          "max_value": 3,
+          "values": []
+        }
+      },
+      "tree_info": [
+        {
+          "tree_index": 0,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 1,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 70.89839935302734,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 2.59375,
+            "internal_weight": 8,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 20.671899795532227,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": 2.07812,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": 1.2906250000000006,
+                "leaf_weight": 1.9999999999999998,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 2.471875,
+                "leaf_weight": 4,
+                "leaf_count": 4
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 1.125,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 4.14062,
+              "internal_weight": 2,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 3.9156249999999986,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": 4.365624999999998,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 1,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 34.74020004272461,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 4.4703499999999996e-09,
+            "internal_weight": 8,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 10.368800163269043,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.360937,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.7553125023841856,
+                "leaf_weight": 3,
+                "leaf_count": 3
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.033437514305114734,
+                "leaf_weight": 3,
+                "leaf_count": 3
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 0.5512499809265137,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 1.08281,
+              "internal_weight": 2,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.9253124713897697,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": 1.2403125286102283,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 2,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 17.0226993560791,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 6.70552e-09,
+            "internal_weight": 8,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 6.55318021774292,
+              "threshold": 1e+300,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": -0.252656,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.39286874413490286,
+                "leaf_weight": 5.000000000000001,
+                "leaf_count": 5
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.44840623140335084,
+                "leaf_weight": 0.999999999999999,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 0.270112007856369,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.757969,
+              "internal_weight": 2,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.6477187871932979,
+                "leaf_weight": 0.9999999999999997,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": 0.868218755722045,
+                "leaf_weight": 1,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 3,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 9.550250053405762,
+            "threshold": -1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -8.940699999999999e-09,
+            "internal_weight": 8,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 3.125,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": -0.567733,
+              "internal_weight": 2,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.9427330970764153,
+                "leaf_weight": 0.9999999999999997,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": -0.19273313283920268,
+                "leaf_weight": 1,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 3.883620023727417,
+              "threshold": 2.5000000000000004,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": 0.189244,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.01857748925685882,
+                "leaf_weight": 4,
+                "leaf_count": 4
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.5305781006813046,
+                "leaf_weight": 1.9999999999999998,
+                "leaf_count": 2
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 4,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 4.773449897766113,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 1.11759e-09,
+            "internal_weight": 8,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 2,
+              "split_feature": 0,
+              "split_gain": 0.6434580087661743,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.299169,
+              "internal_weight": 3,
+              "internal_count": 3,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.3974131822586057,
+                "leaf_weight": 1.9999999999999998,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": -0.10268137156963335,
+                "leaf_weight": 1.0000000000000002,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 2,
+              "split_gain": 3.5020599365234375,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.179502,
+              "internal_weight": 5,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.12799762487411492,
+                "leaf_weight": 1.9999999999999998,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.3845009982585906,
+                "leaf_weight": 3,
+                "leaf_count": 3
+              }
+            }
+          }
+        }
+      ],
+      "feature_importances": {
+        "Column_0": 9,
+        "Column_1": 5,
+        "Column_2": 1
+      },
+      "pandas_categorical": null
+    },
+    "model_base": [
+      0.0
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        -1.197702525854109
+      ],
+      [
+        2.8442986100912093
+      ],
+      [
+        6.403735357522962
+      ]
+    ],
+    "values": [
+      [
+        [
+          -3.560047685950992
+        ],
+        [
+          -0.2954671711474656
+        ],
+        [
+          0.0640623278915882
+        ]
+      ],
+      [
+        [
+          -0.004569234773516298
+        ],
+        [
+          0.5049609202891591
+        ],
+        [
+          -0.24984307877719394
+        ]
+      ],
+      [
+        [
+          4.050846743434665
+        ],
+        [
+          -0.40742344178259327
+        ],
+        [
+          0.16656205251812928
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        2.5937500033527607
+      ],
+      [
+        2.5937500033527607
+      ],
+      [
+        2.5937500033527607
+      ]
+    ]
+  },
+  "xgboost_binary": {
+    "model": [
+      {
+        "nodeid": 0,
+        "leaf": 0.127659574,
+        "cover": 1.81999993
+      },
+      {
+        "nodeid": 0,
+        "leaf": 0.100221343,
+        "cover": 1.88397038
+      },
+      {
+        "nodeid": 0,
+        "leaf": 0.079218924,
+        "cover": 1.92540705
+      },
+      {
+        "nodeid": 0,
+        "leaf": 0.0628904924,
+        "cover": 1.95212531
+      },
+      {
+        "nodeid": 0,
+        "leaf": 0.0500661433,
+        "cover": 1.96930504
+      }
+    ],
+    "model_base": [
+      -0.6190392084062235
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        -0.19898277521133423
+      ],
+      [
+        -0.19898277521133423
+      ],
+      [
+        -0.19898277521133423
+      ]
+    ],
+    "values": [
+      [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ],
+      [
+        [
+          0.0
+        ],
+        [
+          0.0
+        ],
+        [
+          0.0
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        -0.19898274540901184
+      ],
+      [
+        -0.19898274540901184
+      ],
+      [
+        -0.19898274540901184
+      ]
+    ]
+  },
+  "xgboost_multiclass": {
+    "model": [
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 0.5,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.252312839,
+        "cover": 3.55555534,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -7.66345476e-09,
+            "cover": 1.33333325
+          },
+          {
+            "nodeid": 2,
+            "leaf": -0.155172437,
+            "cover": 2.22222209
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f1",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 1.4048779,
+        "cover": 3.55555534,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.0360000096,
+            "cover": 1.77777767
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.288000017,
+            "cover": 1.77777767
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 2,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 1.19307947,
+        "cover": 3.55555534,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.155172437,
+            "cover": 2.22222209
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.128571421,
+            "cover": 1.33333325
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f1",
+        "split_condition": 0.5,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.2040959,
+        "cover": 3.35898018,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": 0.000199098562,
+            "cover": 1.32666361
+          },
+          {
+            "nodeid": 2,
+            "leaf": -0.140730366,
+            "cover": 2.03231668
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f1",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 1.02160835,
+        "cover": 3.73059821,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.0362835266,
+            "cover": 1.7791301
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.234328464,
+            "cover": 1.95146811
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 2,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.940781593,
+        "cover": 3.44318247,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.141565621,
+            "cover": 2.04666591
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.111329369,
+            "cover": 1.39651656
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 0.5,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.157190561,
+        "cover": 3.1445415,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.00149583502,
+            "cover": 1.32464027
+          },
+          {
+            "nodeid": 2,
+            "leaf": -0.127929702,
+            "cover": 1.81990123
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f1",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.758240402,
+        "cover": 3.75489426,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.0343039073,
+            "cover": 1.76302528
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.197592273,
+            "cover": 1.99186897
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 2,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.768980384,
+        "cover": 3.29687309,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.13066557,
+            "cover": 1.86945868
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.100015171,
+            "cover": 1.42741442
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f2",
+        "split_condition": 2,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.143143594,
+        "cover": 2.9316051,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.00335166929,
+            "cover": 1.47527039
+          },
+          {
+            "nodeid": 2,
+            "leaf": -0.123935901,
+            "cover": 1.45633459
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f1",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.602380395,
+        "cover": 3.69055676,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.0330341049,
+            "cover": 1.7512157
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.173855856,
+            "cover": 1.93934119
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 2,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 0.619487703,
+        "cover": 3.13060379,
+        "children": [
+          {
+            "nodeid": 1,
+            "leaf": -0.120894082,
+            "cover": 1.68538713
+          },
+          {
+            "nodeid": 2,
+            "leaf": 0.0888403878,
+            "cover": 1.44521654
+          }
+        ]
+      }
+    ],
+    "model_base": [
+      0.5,
+      0.5,
+      0.5
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        0.4953515827655792,
+        0.3603784441947937,
+        -0.048297710716724396
+      ],
+      [
+        0.07281582802534103,
+        1.3937766551971436,
+        -0.048297710716724396
+      ],
+      [
+        0.09316106885671616,
+        0.3603784441947937,
+        0.9287562966346741
+      ]
+    ],
+    "values": [
+      [
+        [
+          0.17015628516674042,
+          0.0,
+          -0.4056730270385742
+        ],
+        [
+          0.08526793122291565,
+          -0.5352892875671387,
+          0.0
+        ],
+        [
+          0.059902675449848175,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          -0.11145001649856567,
+          0.0,
+          -0.4056730270385742
+        ],
+        [
+          -0.055661533027887344,
+          0.4981089234352112,
+          0.0
+        ],
+        [
+          0.059902675449848175,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          -0.11145001649856567,
+          0.0,
+          0.5713810324668884
+        ],
+        [
+          0.08526793122291565,
+          -0.5352892875671387,
+          0.0
+        ],
+        [
+          -0.060681555420160294,
+          0.0,
+          0.0
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        0.18002468347549438,
+        0.8956677317619324,
+        0.3573753237724304
+      ],
+      [
+        0.18002468347549438,
+        0.8956677317619324,
+        0.3573753237724304
+      ],
+      [
+        0.18002468347549438,
+        0.8956677317619324,
+        0.3573753237724304
+      ]
+    ],
+    "full_model": {
+      "learner": {
+        "attributes": {
+          "scikit_learn": "{\"_estimator_type\": \"classifier\"}"
+        },
+        "feature_names": [],
+        "feature_types": [],
+        "gradient_booster": {
+          "model": {
+            "gbtree_model_param": {
+              "num_parallel_tree": "1",
+              "num_trees": "12"
+            },
+            "iteration_indptr": [
+              0,
+              3,
+              6,
+              9,
+              12
+            ],
+            "tree_info": [
+              0,
+              1,
+              2,
+              0,
+              1,
+              2,
+              0,
+              1,
+              2,
+              0,
+              1,
+              2
+            ],
+            "trees": [
+              {
+                "base_weights": [
+                  -0.3658537,
+                  -7.663455e-09,
+                  -0.15517244
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 0,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.25231284,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  0.5,
+                  -7.663455e-09,
+                  -0.15517244
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.5555553,
+                  1.3333333,
+                  2.222222
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  0.5121951,
+                  -0.03600001,
+                  0.28800002
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 1,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  1.4048779,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  1.0,
+                  -0.03600001,
+                  0.28800002
+                ],
+                "split_indices": [
+                  1,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.5555553,
+                  1.7777777,
+                  1.7777777
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.1463415,
+                  -0.15517244,
+                  0.12857142
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 2,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  1.1930795,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  2.0,
+                  -0.15517244,
+                  0.12857142
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.5555553,
+                  2.222222,
+                  1.3333333
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.32597518,
+                  0.00019909856,
+                  -0.14073037
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 3,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.2040959,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  0.5,
+                  0.00019909856,
+                  -0.14073037
+                ],
+                "split_indices": [
+                  1,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.3589802,
+                  1.3266636,
+                  2.0323167
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  0.4162802,
+                  -0.036283527,
+                  0.23432846
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 4,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  1.0216084,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  1.0,
+                  -0.036283527,
+                  0.23432846
+                ],
+                "split_indices": [
+                  1,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.7305982,
+                  1.7791301,
+                  1.9514681
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.12341039,
+                  -0.14156562,
+                  0.11132937
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 5,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.9407816,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  2.0,
+                  -0.14156562,
+                  0.11132937
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.4431825,
+                  2.046666,
+                  1.3965166
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.29293662,
+                  -0.001495835,
+                  -0.1279297
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 6,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.15719056,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  0.5,
+                  -0.001495835,
+                  -0.1279297
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.1445415,
+                  1.3246403,
+                  1.8199012
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  0.34798363,
+                  -0.034303907,
+                  0.19759227
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 7,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.7582404,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  1.0,
+                  -0.034303907,
+                  0.19759227
+                ],
+                "split_indices": [
+                  1,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.7548943,
+                  1.7630253,
+                  1.991869
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.102525085,
+                  -0.13066557,
+                  0.10001517
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 8,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.7689804,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  2.0,
+                  -0.13066557,
+                  0.10001517
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.296873,
+                  1.8694587,
+                  1.4274144
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.2651371,
+                  -0.0033516693,
+                  -0.1239359
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 9,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.1431436,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  2.0,
+                  -0.0033516693,
+                  -0.1239359
+                ],
+                "split_indices": [
+                  2,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  2.931605,
+                  1.4752704,
+                  1.4563346
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  0.29856992,
+                  -0.033034105,
+                  0.17385586
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 10,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.6023804,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  1.0,
+                  -0.033034105,
+                  0.17385586
+                ],
+                "split_indices": [
+                  1,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.6905568,
+                  1.7512157,
+                  1.9393412
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              },
+              {
+                "base_weights": [
+                  -0.086680986,
+                  -0.12089408,
+                  0.08884039
+                ],
+                "categories": [],
+                "categories_nodes": [],
+                "categories_segments": [],
+                "categories_sizes": [],
+                "default_left": [
+                  0,
+                  0,
+                  0
+                ],
+                "id": 11,
+                "left_children": [
+                  1,
+                  -1,
+                  -1
+                ],
+                "loss_changes": [
+                  0.6194877,
+                  0.0,
+                  0.0
+                ],
+                "parents": [
+                  2147483647,
+                  0,
+                  0
+                ],
+                "right_children": [
+                  2,
+                  -1,
+                  -1
+                ],
+                "split_conditions": [
+                  2.0,
+                  -0.12089408,
+                  0.08884039
+                ],
+                "split_indices": [
+                  0,
+                  0,
+                  0
+                ],
+                "split_type": [
+                  0,
+                  0,
+                  0
+                ],
+                "sum_hessian": [
+                  3.1306038,
+                  1.6853871,
+                  1.4452165
+                ],
+                "tree_param": {
+                  "num_deleted": "0",
+                  "num_feature": "3",
+                  "num_nodes": "3",
+                  "size_leaf_vector": "1"
+                }
+              }
+            ]
+          },
+          "name": "gbtree"
+        },
+        "learner_model_param": {
+          "base_score": "5E-1",
+          "boost_from_average": "0",
+          "num_class": "3",
+          "num_feature": "3",
+          "num_target": "1"
+        },
+        "objective": {
+          "name": "multi:softprob",
+          "softmax_multiclass_param": {
+            "num_class": "3"
+          }
+        }
+      },
+      "version": [
+        2,
+        1,
+        4
+      ]
+    }
+  },
+  "lightgbm_binary": {
+    "model": {
+      "name": "tree",
+      "version": "v4",
+      "num_class": 1,
+      "num_tree_per_iteration": 1,
+      "label_index": 0,
+      "max_feature_idx": 2,
+      "objective": "binary sigmoid:1",
+      "average_output": false,
+      "feature_names": [
+        "Column_0",
+        "Column_1",
+        "Column_2"
+      ],
+      "monotone_constraints": [],
+      "feature_infos": {
+        "Column_0": {
+          "min_value": -2,
+          "max_value": 4,
+          "values": []
+        },
+        "Column_1": {
+          "min_value": -2,
+          "max_value": 2,
+          "values": []
+        },
+        "Column_2": {
+          "min_value": -2,
+          "max_value": 3,
+          "values": []
+        }
+      },
+      "tree_info": [
+        {
+          "tree_index": 0,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 4.800000190734863,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0,
+            "internal_weight": 2,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": -0.5999999999999989,
+              "leaf_weight": 0.7500000000000003,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 2,
+              "split_gain": 1.2000000476837158,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.36,
+              "internal_weight": 1.25,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0,
+                "leaf_weight": 0.49999999999999967,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.5999999999999991,
+                "leaf_weight": 0.7500000000000001,
+                "leaf_count": 3
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 1,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 2.5989599227905273,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0,
+            "internal_weight": 1.87271,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": -0.46464349055098286,
+              "leaf_weight": 0.686352699995041,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 2,
+              "split_gain": 0.6939060091972351,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.268815,
+              "internal_weight": 1.18635,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0,
+                "leaf_weight": 0.4999999999999999,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.46464349055098303,
+                "leaf_weight": 0.6863526999950408,
+                "leaf_count": 3
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 2,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 1.5865800380706787,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0,
+            "internal_weight": 1.64402,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": -0.4034552480503938,
+              "leaf_weight": 0.5720108449459077,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.7466599941253662,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.215278,
+              "internal_weight": 1.07201,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.5149585420859547,
+                "leaf_weight": 0.44067028164863564,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.0061042356230853025,
+                "leaf_weight": 0.6313405632972717,
+                "leaf_count": 3
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 3,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.9960010051727295,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.00160322,
+            "internal_weight": 1.46252,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": -0.36910889656172463,
+              "leaf_weight": 0.45652811229228984,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 2,
+              "split_gain": 0.6382889747619629,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.165173,
+              "internal_weight": 1.006,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.4450078672518729,
+                "leaf_weight": 0.4242348074913024,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.03888873406741927,
+                "leaf_weight": 0.5817619562149047,
+                "leaf_count": 3
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 4,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.6522409915924072,
+            "threshold": 1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.00181589,
+            "internal_weight": 1.29234,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": -0.34777847975406745,
+              "leaf_weight": 0.3555242791771889,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 2,
+              "split_gain": 0.7160540223121643,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.129478,
+              "internal_weight": 0.936812,
+              "internal_count": 5,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.14323125093286876,
+                "leaf_weight": 0.4501525014638901,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.3817307223008347,
+                "leaf_weight": 0.486659437417984,
+                "leaf_count": 3
+              }
+            }
+          }
+        }
+      ],
+      "feature_importances": {
+        "Column_0": 5,
+        "Column_1": 1,
+        "Column_2": 4
+      },
+      "pandas_categorical": null
+    },
+    "model_base": [
+      0.0
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        -2.1849861149171677
+      ],
+      [
+        0.8167351584049589
+      ],
+      [
+        2.4063406221896444
+      ]
+    ],
+    "values": [
+      [
+        [
+          -2.1745030738275912
+        ],
+        [
+          -0.06360678830785868
+        ],
+        [
+          0.13821360780817415
+        ]
+      ],
+      [
+        [
+          1.1927916150460813
+        ],
+        [
+          0.24806647440064883
+        ],
+        [
+          -0.5390330704518793
+        ]
+      ],
+      [
+        [
+          1.4908426395057097
+        ],
+        [
+          0.24806647440064883
+        ],
+        [
+          0.7525213688731778
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        -0.0850898605898921
+      ],
+      [
+        -0.0850898605898921
+      ],
+      [
+        -0.0850898605898921
+      ]
+    ]
+  },
+  "lightgbm_multiclass": {
+    "model": {
+      "name": "tree",
+      "version": "v4",
+      "num_class": 3,
+      "num_tree_per_iteration": 3,
+      "label_index": 0,
+      "max_feature_idx": 2,
+      "objective": "multiclass num_class:3",
+      "average_output": false,
+      "feature_names": [
+        "Column_0",
+        "Column_1",
+        "Column_2"
+      ],
+      "monotone_constraints": [],
+      "feature_infos": {
+        "Column_0": {
+          "min_value": -2,
+          "max_value": 4,
+          "values": []
+        },
+        "Column_1": {
+          "min_value": -2,
+          "max_value": 2,
+          "values": []
+        },
+        "Column_2": {
+          "min_value": -2,
+          "max_value": 3,
+          "values": []
+        }
+      },
+      "tree_info": [
+        {
+          "tree_index": 0,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 1,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 2.285710096359253,
+            "threshold": -1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -2.07944,
+            "internal_weight": 1.3125,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 3.0476200580596924,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": -1.3937300000000001,
+              "internal_weight": 0.328125,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.47944154167984543,
+                "leaf_weight": 0.1640625,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -2.308012970251263,
+                "leaf_weight": 0.1640625,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -2.308012970251264,
+              "leaf_weight": 0.984375,
+              "leaf_count": 6
+            }
+          }
+        },
+        {
+          "tree_index": 1,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 1,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 2.9629600048065186,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.470004,
+            "internal_weight": 2.8125,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 0.9481480121612549,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.292226,
+              "internal_weight": 2.10938,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.576670295912402,
+                "leaf_weight": 0.7031250000000003,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.15000362924573585,
+                "leaf_weight": 1.4062500000000002,
+                "leaf_count": 4
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -1.0033369625790682,
+              "leaf_weight": 0.7031249999999999,
+              "leaf_count": 2
+            }
+          }
+        },
+        {
+          "tree_index": 2,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 1,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 5.333330154418945,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -1.38629,
+            "internal_weight": 2.25,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 2.2204500197172533e-16,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -1.65296,
+              "internal_weight": 1.6875,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -1.652961027786557,
+                "leaf_weight": 0.8437500000000002,
+                "leaf_count": 3
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -1.652961027786557,
+                "leaf_weight": 0.84375,
+                "leaf_count": 3
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -0.5862943611198919,
+              "leaf_weight": 0.5624999999999999,
+              "leaf_count": 2
+            }
+          }
+        },
+        {
+          "tree_index": 3,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.7417160272598267,
+            "threshold": -1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.025601,
+            "internal_weight": 1.26282,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.5439220070838928,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.24653,
+              "internal_weight": 0.52597,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": 0.4433250095865768,
+                "leaf_weight": 0.3714185059070587,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.22640794530302946,
+                "leaf_weight": 0.15455131232738495,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 0,
+              "split_gain": 1.3157899957150221e-05,
+              "threshold": 2.5000000000000004,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.219851,
+              "internal_weight": 0.736849,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.21890513270271736,
+                "leaf_weight": 0.4734227657318115,
+                "leaf_count": 4
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": -0.22155027710328193,
+                "leaf_weight": 0.26342639327049255,
+                "leaf_count": 2
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 4,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 1.209879994392395,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0.0267818,
+            "internal_weight": 2.5227,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.5712940096855164,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.154262,
+              "internal_weight": 1.83269,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.07278748969072771,
+                "leaf_weight": 0.6458830237388612,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.2778258837516101,
+                "leaf_weight": 1.186809778213501,
+                "leaf_count": 4
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -0.31181132358089797,
+              "leaf_weight": 0.6900066733360289,
+              "leaf_count": 2
+            }
+          }
+        },
+        {
+          "tree_index": 5,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 1.9421700239181519,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.0174665,
+            "internal_weight": 2.01718,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.0008644969784654677,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": -0.24253,
+              "internal_weight": 1.27302,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.238558384092747,
+                "leaf_weight": 1.0118262618780138,
+                "leaf_count": 5
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.25791742238088455,
+                "leaf_weight": 0.2611975669860839,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 2.2204500197172533e-16,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.36755,
+              "internal_weight": 0.744154,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.36755029601912953,
+                "leaf_weight": 0.3720770776271819,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": 0.3675502960191294,
+                "leaf_weight": 0.372077077627182,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 6,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.503246009349823,
+            "threshold": -1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.0181785,
+            "internal_weight": 1.02398,
+            "internal_count": 8,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": 0.20753890672709788,
+              "leaf_weight": 0.47585754096508026,
+              "leaf_count": 2
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 1.1010300113412086e-05,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": -0.214139,
+              "internal_weight": 0.548119,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.21588586693137116,
+                "leaf_weight": 0.20385697484016418,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.21310390876233845,
+                "leaf_weight": 0.3442615792155266,
+                "leaf_count": 4
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 7,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.6697260141372681,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0.0266288,
+            "internal_weight": 2.02331,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.34450098872184753,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": 0.130279,
+              "internal_weight": 1.48704,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.048672203687220146,
+                "leaf_weight": 0.586399018764496,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.24679264595840333,
+                "leaf_weight": 0.9006385952234269,
+                "leaf_count": 4
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -0.2607853477161528,
+              "leaf_weight": 0.5362703204154967,
+              "leaf_count": 2
+            }
+          }
+        },
+        {
+          "tree_index": 8,
+          "num_leaves": 3,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 1.118649959564209,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.0223004,
+            "internal_weight": 1.58131,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.0001592820044606924,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": -0.228377,
+              "internal_weight": 0.948584,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.22640550182892238,
+                "leaf_weight": 0.754516214132309,
+                "leaf_count": 5
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.23604227560549004,
+                "leaf_weight": 0.19406796991825104,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": 0.2866500216478187,
+              "leaf_weight": 0.6327264308929443,
+              "leaf_count": 2
+            }
+          }
+        },
+        {
+          "tree_index": 9,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.3445670008659363,
+            "threshold": -1.0000000180025095e-35,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.00828105,
+            "internal_weight": 0.855211,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.2605530023574829,
+              "threshold": 1.7500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.171171,
+              "internal_weight": 0.452952,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": 0.3040943407615749,
+                "leaf_weight": 0.3377004861831665,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.21830925157235362,
+                "leaf_weight": 0.11525176465511322,
+                "leaf_count": 1
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 0,
+              "split_gain": 2.4911500076996163e-05,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.210348,
+              "internal_weight": 0.402259,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.21459179604285905,
+                "leaf_weight": 0.09506133198738098,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": -0.2090345070086397,
+                "leaf_weight": 0.30719780921936035,
+                "leaf_count": 5
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 10,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.393216997385025,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": 0.0250125,
+            "internal_weight": 1.6019,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 0,
+              "split_gain": 0.2693899869918823,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": 0.109505,
+              "internal_weight": 1.21068,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.05222470951052695,
+                "leaf_weight": 0.5249848812818526,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": 0.2333293079304548,
+                "leaf_weight": 0.6856932938098906,
+                "leaf_count": 4
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 3.584630162145608e-11,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": -0.236457,
+              "internal_weight": 0.391224,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.2364596322402151,
+                "leaf_weight": 0.19562283158302318,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": -0.23645388895245667,
+                "leaf_weight": 0.19560149312019348,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 11,
+          "num_leaves": 4,
+          "num_cat": 0,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 0.7046890258789062,
+            "threshold": 2.5000000000000004,
+            "decision_type": "<=",
+            "default_left": true,
+            "missing_type": "None",
+            "internal_value": -0.0278386,
+            "internal_weight": 1.18488,
+            "internal_count": 8,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 0.00019936000171583146,
+              "threshold": -1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": false,
+              "missing_type": "NaN",
+              "internal_value": -0.22003,
+              "internal_weight": 0.701079,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": -0.22910073017497398,
+                "leaf_weight": 0.16633057594299316,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.2172085137768105,
+                "leaf_weight": 0.5347483307123184,
+                "leaf_count": 5
+              }
+            },
+            "right_child": {
+              "split_index": 2,
+              "split_feature": 1,
+              "split_gain": 1.502790003549137e-09,
+              "threshold": 1.0000000180025095e-35,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "NaN",
+              "internal_value": 0.250665,
+              "internal_weight": 0.483805,
+              "internal_count": 2,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": 0.25064800382782704,
+                "leaf_weight": 0.24185499548912048,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "leaf_index": 3,
+                "leaf_value": 0.25068144378430485,
+                "leaf_weight": 0.24195009469985962,
+                "leaf_count": 1
+              }
+            }
+          }
+        }
+      ],
+      "feature_importances": {
+        "Column_0": 17,
+        "Column_1": 12
+      },
+      "pandas_categorical": null
+    },
+    "model_base": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        0.4755167153954041,
+        -0.10427647571291555,
+        -2.3351334274850366
+      ],
+      [
+        -2.9490565187249596,
+        0.6079442083947324,
+        -2.3351334274850366
+      ],
+      [
+        -2.954483621294557,
+        -1.812393266116334,
+        0.3185539603748834
+      ]
+    ],
+    "values": [
+      [
+        [
+          2.0037508721292667,
+          0.04399785271857759,
+          -0.6642799508831292
+        ],
+        [
+          0.9443189872070518,
+          0.18843984068947364,
+          0.005964927481448206
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          -0.6661090277371975,
+          0.7562192547371953,
+          -0.6642757708885695
+        ],
+        [
+          0.1896056529531524,
+          0.1884391227785038,
+          0.005960747486888494
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      [
+        [
+          -0.6691019169088912,
+          -1.3141577464459526,
+          1.9972868938150206
+        ],
+        [
+          0.18717143955524876,
+          -0.16152135054941483,
+          -0.001914529356781297
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        -2.4725531439409147,
+        -0.33671416912096663,
+        -1.6768184040833558
+      ],
+      [
+        -2.4725531439409147,
+        -0.33671416912096663,
+        -1.6768184040833558
+      ],
+      [
+        -2.4725531439409147,
+        -0.33671416912096663,
+        -1.6768184040833558
+      ]
+    ]
+  },
+  "xgboost_dart_weights": {
+    "full_model": {
+      "learner": {
+        "attributes": {
+          "scikit_learn": "{\"_estimator_type\": \"regressor\"}"
+        },
+        "feature_names": [],
+        "feature_types": [],
+        "gradient_booster": {
+          "gbtree": {
+            "model": {
+              "gbtree_model_param": {
+                "num_parallel_tree": "1",
+                "num_trees": "8"
+              },
+              "iteration_indptr": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8
+              ],
+              "tree_info": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ],
+              "trees": [
+                {
+                  "base_weights": [
+                    2.0833333,
+                    -0.65,
+                    1.32,
+                    -0.40000004,
+                    0.075
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 0,
+                  "left_children": [
+                    1,
+                    3,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    59.850006,
+                    3.4083335,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    0.0,
+                    1.32,
+                    -0.40000004,
+                    0.075
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "5",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.5688889,
+                    -0.52,
+                    3.3439999,
+                    -0.4275,
+                    0.018750004,
+                    0.436,
+                    1.2360001
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 1,
+                  "left_children": [
+                    1,
+                    3,
+                    5,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    35.110966,
+                    2.724875,
+                    1.3480568,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1,
+                    2,
+                    2
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    6,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    -1.0,
+                    3.0,
+                    -0.4275,
+                    0.018750004,
+                    0.436,
+                    1.2360001
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    1.0,
+                    3.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "7",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.5688889,
+                    -0.52,
+                    3.3439999,
+                    -0.4275,
+                    0.018750004,
+                    0.436,
+                    1.2360001
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 2,
+                  "left_children": [
+                    1,
+                    3,
+                    5,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    35.110966,
+                    2.724875,
+                    1.3480568,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1,
+                    2,
+                    2
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    6,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    -1.0,
+                    3.0,
+                    -0.4275,
+                    0.018750004,
+                    0.436,
+                    1.2360001
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    1.0,
+                    3.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "7",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.8292521,
+                    -0.5928846,
+                    1.1656616,
+                    -0.3685577,
+                    0.07211539
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 3,
+                  "left_children": [
+                    1,
+                    3,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    47.129135,
+                    2.9436193,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    0.0,
+                    1.1656616,
+                    -0.3685577,
+                    0.07211539
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "5",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.8292521,
+                    -0.5928846,
+                    1.1656616,
+                    -0.3685577,
+                    0.07211539
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 4,
+                  "left_children": [
+                    1,
+                    3,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    47.129135,
+                    2.9436193,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    0.0,
+                    1.1656616,
+                    -0.3685577,
+                    0.07211539
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "5",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.1068141,
+                    -0.407317,
+                    2.3995824,
+                    -0.35213837,
+                    0.023325294,
+                    0.26143408,
+                    0.9383572
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 5,
+                  "left_children": [
+                    1,
+                    3,
+                    5,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    18.594181,
+                    1.9502323,
+                    2.838749,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1,
+                    2,
+                    2
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    6,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    -1.0,
+                    3.0,
+                    -0.35213837,
+                    0.023325294,
+                    0.26143408,
+                    0.9383572
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    1.0,
+                    3.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "7",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.3586527,
+                    -0.4678912,
+                    2.913466,
+                    -0.3826852,
+                    0.015883405,
+                    0.38043758,
+                    1.0762955
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 6,
+                  "left_children": [
+                    1,
+                    3,
+                    5,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    26.9226,
+                    2.171001,
+                    0.9967346,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1,
+                    2,
+                    2
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    6,
+                    -1,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    -1.0,
+                    3.0,
+                    -0.3826852,
+                    0.015883405,
+                    0.38043758,
+                    1.0762955
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    1.0,
+                    3.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "7",
+                    "size_leaf_vector": "1"
+                  }
+                },
+                {
+                  "base_weights": [
+                    1.8560597,
+                    -0.5981211,
+                    1.1817086,
+                    -0.3715033,
+                    0.072442725
+                  ],
+                  "categories": [],
+                  "categories_nodes": [],
+                  "categories_segments": [],
+                  "categories_sizes": [],
+                  "default_left": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "id": 7,
+                  "left_children": [
+                    1,
+                    3,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "loss_changes": [
+                    48.363853,
+                    2.9866767,
+                    0.0,
+                    0.0,
+                    0.0
+                  ],
+                  "parents": [
+                    2147483647,
+                    0,
+                    0,
+                    1,
+                    1
+                  ],
+                  "right_children": [
+                    2,
+                    4,
+                    -1,
+                    -1,
+                    -1
+                  ],
+                  "split_conditions": [
+                    1.0,
+                    0.0,
+                    1.1817086,
+                    -0.3715033,
+                    0.072442725
+                  ],
+                  "split_indices": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "split_type": [
+                    0,
+                    0,
+                    0,
+                    0,
+                    0
+                  ],
+                  "sum_hessian": [
+                    8.0,
+                    4.0,
+                    4.0,
+                    2.0,
+                    2.0
+                  ],
+                  "tree_param": {
+                    "num_deleted": "0",
+                    "num_feature": "3",
+                    "num_nodes": "5",
+                    "size_leaf_vector": "1"
+                  }
+                }
+              ]
+            },
+            "name": "gbtree"
+          },
+          "name": "dart",
+          "weight_drop": [
+            0.7457678,
+            0.6597176,
+            0.42523617,
+            0.33898535,
+            0.28587765,
+            0.7256894,
+            0.3030303,
+            0.18867923
+          ]
+        },
+        "learner_model_param": {
+          "base_score": "2.5E-1",
+          "boost_from_average": "0",
+          "num_class": "0",
+          "num_feature": "3",
+          "num_target": "1"
+        },
+        "objective": {
+          "name": "reg:squarederror",
+          "reg_loss_param": {
+            "scale_pos_weight": "1"
+          }
+        }
+      },
+      "version": [
+        2,
+        1,
+        4
+      ]
+    },
+    "model": [
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 59.8500061,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 3.40833354,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.400000036,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.075000003,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "leaf": 1.32000005,
+            "cover": 4
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 35.1109657,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.72487497,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.42750001,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0187500045,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 1.34805679,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.43599999,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 1.23600006,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 35.1109657,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.72487497,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.42750001,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0187500045,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 1.34805679,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.43599999,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 1.23600006,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 47.1291351,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.94361925,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.368557692,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0721153915,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "leaf": 1.16566157,
+            "cover": 4
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 47.1291351,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.94361925,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.368557692,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0721153915,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "leaf": 1.16566157,
+            "cover": 4
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 18.5941811,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 1.95023227,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.35213837,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0233252943,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 2.83874893,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.261434078,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 0.938357174,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 26.9225998,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": -1,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.17100096,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.382685214,
+                "cover": 1
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0158834048,
+                "cover": 3
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 3,
+            "yes": 5,
+            "no": 6,
+            "missing": 6,
+            "gain": 0.996734619,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 5,
+                "leaf": 0.380437583,
+                "cover": 2
+              },
+              {
+                "nodeid": 6,
+                "leaf": 1.0762955,
+                "cover": 2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "nodeid": 0,
+        "depth": 0,
+        "split": "f0",
+        "split_condition": 1,
+        "yes": 1,
+        "no": 2,
+        "missing": 2,
+        "gain": 48.3638535,
+        "cover": 8,
+        "children": [
+          {
+            "nodeid": 1,
+            "depth": 1,
+            "split": "f0",
+            "split_condition": 0,
+            "yes": 3,
+            "no": 4,
+            "missing": 4,
+            "gain": 2.98667669,
+            "cover": 4,
+            "children": [
+              {
+                "nodeid": 3,
+                "leaf": -0.371503294,
+                "cover": 2
+              },
+              {
+                "nodeid": 4,
+                "leaf": 0.0724427253,
+                "cover": 2
+              }
+            ]
+          },
+          {
+            "nodeid": 2,
+            "leaf": 1.18170857,
+            "cover": 4
+          }
+        ]
+      }
+    ],
+    "tree_weights": [
+      0.7457678,
+      0.6597176,
+      0.42523617,
+      0.33898535,
+      0.28587765,
+      0.7256894,
+      0.3030303,
+      0.18867923
+    ],
+    "model_base": [
+      0.25
+    ],
+    "samples": [
+      [
+        -1.5,
+        0.25,
+        1.0
+      ],
+      [
+        1.5,
+        null,
+        -1.0
+      ],
+      [
+        3.5,
+        -1.0,
+        null
+      ]
+    ],
+    "prediction": [
+      [
+        -1.1840262413024902
+      ],
+      [
+        2.9637999534606934
+      ],
+      [
+        4.533864974975586
+      ]
+    ]
+  },
+  "lightgbm_categorical": {
+    "model": {
+      "name": "tree",
+      "version": "v4",
+      "num_class": 1,
+      "num_tree_per_iteration": 1,
+      "label_index": 0,
+      "max_feature_idx": 1,
+      "objective": "regression",
+      "average_output": false,
+      "feature_names": [
+        "category",
+        "numeric"
+      ],
+      "monotone_constraints": [],
+      "feature_infos": {
+        "category": {
+          "min_value": -1,
+          "max_value": 3,
+          "values": [
+            -1,
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "numeric": {
+          "min_value": -2,
+          "max_value": 2.5,
+          "values": []
+        }
+      },
+      "tree_info": [
+        {
+          "tree_index": 0,
+          "num_leaves": 4,
+          "num_cat": 1,
+          "shrinkage": 1,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 63.28120040893555,
+            "threshold": "1||3",
+            "decision_type": "==",
+            "default_left": false,
+            "missing_type": "None",
+            "internal_value": 2.48333,
+            "internal_weight": 12,
+            "internal_count": 12,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 3.7453300952911377,
+              "threshold": -1.2499999999999998,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": 2.90521,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": 4.138333372523386,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "split_index": 2,
+                "split_feature": 1,
+                "split_gain": 4.418000221252441,
+                "threshold": 1.0000000180025095e-35,
+                "decision_type": "<=",
+                "default_left": true,
+                "missing_type": "None",
+                "internal_value": 3.50233,
+                "internal_weight": 5,
+                "internal_count": 5,
+                "left_child": {
+                  "leaf_index": 2,
+                  "leaf_value": 2.9383333009978134,
+                  "leaf_weight": 0.9999999999999999,
+                  "leaf_count": 1
+                },
+                "right_child": {
+                  "leaf_index": 3,
+                  "leaf_value": 3.6433333081503707,
+                  "leaf_weight": 4,
+                  "leaf_count": 4
+                }
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": 2.061458314706882,
+              "leaf_weight": 6,
+              "leaf_count": 6
+            }
+          }
+        },
+        {
+          "tree_index": 1,
+          "num_leaves": 4,
+          "num_cat": 1,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 38.94269943237305,
+            "threshold": "1||3",
+            "decision_type": "==",
+            "default_left": false,
+            "missing_type": "None",
+            "internal_value": -0.105469,
+            "internal_weight": 12,
+            "internal_count": 12,
+            "left_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 1.8352099657058716,
+              "threshold": -1.2499999999999998,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": 0.295312,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "leaf_index": 0,
+                "leaf_value": 1.1585000038146962,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              },
+              "right_child": {
+                "split_index": 2,
+                "split_feature": 1,
+                "split_gain": 2.1648199558258057,
+                "threshold": 1.0000000180025095e-35,
+                "decision_type": "<=",
+                "default_left": true,
+                "missing_type": "None",
+                "internal_value": 0.7133,
+                "internal_weight": 5,
+                "internal_count": 5,
+                "left_child": {
+                  "leaf_index": 2,
+                  "leaf_value": 0.3185000181198117,
+                  "leaf_weight": 0.9999999999999999,
+                  "leaf_count": 1
+                },
+                "right_child": {
+                  "leaf_index": 3,
+                  "leaf_value": 0.8119999587535857,
+                  "leaf_weight": 4,
+                  "leaf_count": 4
+                }
+              }
+            },
+            "right_child": {
+              "leaf_index": 1,
+              "leaf_value": -0.3744140535593033,
+              "leaf_weight": 6,
+              "leaf_count": 6
+            }
+          }
+        },
+        {
+          "tree_index": 2,
+          "num_leaves": 4,
+          "num_cat": 1,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 23.489099502563477,
+            "threshold": "1||3",
+            "decision_type": "==",
+            "default_left": false,
+            "missing_type": "None",
+            "internal_value": -0.167432,
+            "internal_weight": 12,
+            "internal_count": 12,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": 0.20671875060070305,
+              "leaf_weight": 6,
+              "leaf_count": 6
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 1.8253300189971924,
+              "threshold": 1.2500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.332292,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "split_index": 2,
+                "split_feature": 1,
+                "split_gain": 2.888000011444092,
+                "threshold": 1.0000000180025095e-35,
+                "decision_type": "<=",
+                "default_left": true,
+                "missing_type": "None",
+                "internal_value": -0.812113,
+                "internal_weight": 5,
+                "internal_count": 5,
+                "left_child": {
+                  "leaf_index": 1,
+                  "leaf_value": -0.9261132717132565,
+                  "leaf_weight": 4,
+                  "leaf_count": 4
+                },
+                "right_child": {
+                  "leaf_index": 3,
+                  "leaf_value": -0.35611327886581384,
+                  "leaf_weight": 0.9999999999999999,
+                  "leaf_count": 1
+                }
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -1.2561132431030262,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 3,
+          "num_leaves": 4,
+          "num_cat": 1,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 15.13949966430664,
+            "threshold": "3",
+            "decision_type": "==",
+            "default_left": false,
+            "missing_type": "None",
+            "internal_value": -0.0655225,
+            "internal_weight": 12,
+            "internal_count": 12,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": 0.22782331796792835,
+              "leaf_weight": 3,
+              "leaf_count": 3
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 1.9588299989700317,
+              "threshold": -1.2499999999999998,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.197262,
+              "internal_weight": 9,
+              "internal_count": 9,
+              "left_child": {
+                "leaf_index": 1,
+                "leaf_value": -0.6782793045043948,
+                "leaf_weight": 1.999999999999998,
+                "leaf_count": 2
+              },
+              "right_child": {
+                "split_index": 2,
+                "split_feature": 1,
+                "split_gain": 3.2740800380706787,
+                "threshold": -1.0000000180025095e-35,
+                "decision_type": "<=",
+                "default_left": true,
+                "missing_type": "None",
+                "internal_value": -0.341631,
+                "internal_weight": 7,
+                "internal_count": 7,
+                "left_child": {
+                  "leaf_index": 2,
+                  "leaf_value": 0.16093438267707838,
+                  "leaf_weight": 0.9999999999999981,
+                  "leaf_count": 1
+                },
+                "right_child": {
+                  "leaf_index": 3,
+                  "leaf_value": -0.4253914125263689,
+                  "leaf_weight": 6.000000000000002,
+                  "leaf_count": 6
+                }
+              }
+            }
+          }
+        },
+        {
+          "tree_index": 4,
+          "num_leaves": 4,
+          "num_cat": 1,
+          "shrinkage": 0.3,
+          "tree_structure": {
+            "split_index": 0,
+            "split_feature": 0,
+            "split_gain": 11.436100006103516,
+            "threshold": "1||3",
+            "decision_type": "==",
+            "default_left": false,
+            "missing_type": "None",
+            "internal_value": 0.0110901,
+            "internal_weight": 12,
+            "internal_count": 12,
+            "left_child": {
+              "leaf_index": 0,
+              "leaf_value": 0.183582481672056,
+              "leaf_weight": 6,
+              "leaf_count": 6
+            },
+            "right_child": {
+              "split_index": 1,
+              "split_feature": 1,
+              "split_gain": 1.0776000022888184,
+              "threshold": 1.2500000000000002,
+              "decision_type": "<=",
+              "default_left": true,
+              "missing_type": "None",
+              "internal_value": -0.175265,
+              "internal_weight": 6,
+              "internal_count": 6,
+              "left_child": {
+                "split_index": 2,
+                "split_feature": 1,
+                "split_gain": 1.1588399410247803,
+                "threshold": 1.0000000180025095e-35,
+                "decision_type": "<=",
+                "default_left": true,
+                "missing_type": "None",
+                "internal_value": -0.410515,
+                "internal_weight": 5,
+                "internal_count": 5,
+                "left_child": {
+                  "leaf_index": 1,
+                  "leaf_value": -0.4827286804094909,
+                  "leaf_weight": 4,
+                  "leaf_count": 4
+                },
+                "right_child": {
+                  "leaf_index": 3,
+                  "leaf_value": -0.12166187167167652,
+                  "leaf_weight": 0.9999999999999999,
+                  "leaf_count": 1
+                }
+              },
+              "right_child": {
+                "leaf_index": 2,
+                "leaf_value": -0.7516618967056268,
+                "leaf_weight": 0.9999999999999999,
+                "leaf_count": 1
+              }
+            }
+          }
+        }
+      ],
+      "feature_importances": {
+        "category": 5,
+        "numeric": 10
+      },
+      "pandas_categorical": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
+      ]
+    },
+    "model_base": [
+      0.0
+    ],
+    "samples": [
+      [
+        0.0,
+        0.25
+      ],
+      [
+        2.0,
+        -0.5
+      ],
+      [
+        3.0,
+        1.0
+      ],
+      [
+        null,
+        0.0
+      ]
+    ],
+    "prediction": [
+      [
+        0.7838776980837193
+      ],
+      [
+        0.4391366917019096
+      ],
+      [
+        5.073457817144644
+      ],
+      [
+        -0.1471891035015377
+      ]
+    ],
+    "values": [
+      [
+        [
+          -2.1844204333031736
+        ],
+        [
+          0.6638271416227021
+        ]
+      ],
+      [
+        [
+          -2.044271422352474
+        ],
+        [
+          0.1789371242901932
+        ]
+      ],
+      [
+        [
+          2.5087902982378947
+        ],
+        [
+          0.2601965291425585
+        ]
+      ],
+      [
+        [
+          -2.117562146752905
+        ],
+        [
+          -0.3340979465128233
+        ]
+      ]
+    ],
+    "base_values": [
+      [
+        2.3044709897641904
+      ],
+      [
+        2.3044709897641904
+      ],
+      [
+        2.3044709897641904
+      ],
+      [
+        2.3044709897641904
+      ]
+    ]
+  }
+}

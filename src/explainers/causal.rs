@@ -1,13 +1,113 @@
 use crate::{
-    evaluation::CoalitionEvaluator, EvaluationConfig, Explainer, Explanation, Link, Masker,
-    Predict, Result, ShapError,
+    evaluation::CoalitionEvaluator, AttributionSemantics, Background, ConditionalTabularMasker,
+    EvaluationConfig, Explainer, Explanation, IndependentMasker, Link, Masker, Predict, Result,
+    ShapError,
 };
-use ndarray::{Array2, Array3, ArrayView2};
+use ndarray::{Array2, Array3, ArrayView1, ArrayView2};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CausalMaskingMode {
+    Interventional,
+    Observational,
+    Conditional,
+}
+
+#[derive(Debug, Clone)]
+pub struct CausalTabularMasker {
+    mode: CausalMaskingMode,
+    interventional: Option<IndependentMasker>,
+    conditional: Option<ConditionalTabularMasker>,
+}
+
+impl CausalTabularMasker {
+    pub fn interventional(background: Background) -> Self {
+        Self {
+            mode: CausalMaskingMode::Interventional,
+            interventional: Some(IndependentMasker::new(background)),
+            conditional: None,
+        }
+    }
+    pub fn observational(
+        background: Background,
+        categorical_features: &[usize],
+        neighbors: usize,
+    ) -> Result<Self> {
+        Self::nearest(
+            CausalMaskingMode::Observational,
+            background,
+            categorical_features,
+            neighbors,
+        )
+    }
+    pub fn conditional(
+        background: Background,
+        categorical_features: &[usize],
+        neighbors: usize,
+    ) -> Result<Self> {
+        Self::nearest(
+            CausalMaskingMode::Conditional,
+            background,
+            categorical_features,
+            neighbors,
+        )
+    }
+    fn nearest(
+        mode: CausalMaskingMode,
+        background: Background,
+        categorical_features: &[usize],
+        neighbors: usize,
+    ) -> Result<Self> {
+        Ok(Self {
+            mode,
+            interventional: None,
+            conditional: Some(ConditionalTabularMasker::new(
+                background,
+                categorical_features,
+                neighbors,
+            )?),
+        })
+    }
+    pub fn mode(&self) -> CausalMaskingMode {
+        self.mode
+    }
+}
+
+impl Masker for CausalTabularMasker {
+    fn n_features(&self) -> usize {
+        self.interventional
+            .as_ref()
+            .map(Masker::n_features)
+            .or_else(|| self.conditional.as_ref().map(Masker::n_features))
+            .unwrap_or(0)
+    }
+    fn mask(&self, sample: ArrayView1<'_, f64>, present: &[bool]) -> Result<Array2<f64>> {
+        if let Some(masker) = &self.interventional {
+            masker.mask(sample, present)
+        } else if let Some(masker) = &self.conditional {
+            masker.mask(sample, present)
+        } else {
+            Err(ShapError::InvalidConfiguration(
+                "causal tabular masker has no sampling strategy".into(),
+            ))
+        }
+    }
+}
 
 /// Directed acyclic dependency graph for asymmetric causal Shapley values.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "CausalGraphPayload")]
 pub struct CausalGraph {
     parents: Vec<Vec<usize>>,
+}
+#[derive(serde::Deserialize)]
+struct CausalGraphPayload {
+    parents: Vec<Vec<usize>>,
+}
+impl TryFrom<CausalGraphPayload> for CausalGraph {
+    type Error = ShapError;
+    fn try_from(payload: CausalGraphPayload) -> Result<Self> {
+        Self::new(payload.parents)
+    }
 }
 impl CausalGraph {
     pub fn new(parents: Vec<Vec<usize>>) -> Result<Self> {
@@ -156,13 +256,18 @@ impl<M: Predict, K: Masker> Explainer for CausalExplainer<M, K> {
             ));
         }
         let orders = self.graph.topological_orders(self.max_orders)?;
+        let step_count = orders.len().checked_mul(m).ok_or_else(|| {
+            ShapError::InvalidConfiguration("causal order step count overflowed".into())
+        })?;
+        crate::error::checked_f64_shape(&[step_count], "causal order steps")?;
         let mut probe = CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let o = probe.evaluate(x.row(0), &[0])?[0].len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "causal explanation")?;
         let mut values = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         for n in 0..x.nrows() {
             let mut masks = vec![0u64];
-            let mut steps = Vec::with_capacity(orders.len() * m);
+            let mut steps = Vec::with_capacity(step_count);
             for order in &orders {
                 let mut mask = 0;
                 let mut before = 0;
@@ -196,6 +301,7 @@ impl<M: Predict, K: Masker> Explainer for CausalExplainer<M, K> {
             }
         }
         Explanation::new(values, bases, x.to_owned())
+            .map(|explanation| explanation.with_semantics(AttributionSemantics::CausalAsymmetric))
     }
 }
 
@@ -215,6 +321,27 @@ mod tests {
             .unwrap();
         assert!(e.values()[[0, 0, 0]].abs() < 1e-12);
         assert!((e.values()[[0, 1, 0]] - 1.).abs() < 1e-12);
+        assert_eq!(e.semantics(), AttributionSemantics::CausalAsymmetric);
+    }
+    #[test]
+    fn causal_tabular_modes_select_interventional_or_conditional_sampling() {
+        let background = Background::new(array![[0., 0.], [1., 0.1], [1., 9.]]).unwrap();
+        let interventional = CausalTabularMasker::interventional(background.clone());
+        assert_eq!(
+            interventional
+                .mask(array![1., 8.].view(), &[true, false])
+                .unwrap()
+                .nrows(),
+            3
+        );
+        let observational = CausalTabularMasker::observational(background, &[0], 1).unwrap();
+        assert_eq!(observational.mode(), CausalMaskingMode::Observational);
+        assert_eq!(
+            observational
+                .mask(array![1., 8.].view(), &[true, false])
+                .unwrap(),
+            array![[1., 0.1]]
+        );
     }
     #[test]
     fn rejects_invalid_deserialized_style_graph_before_evaluation() {

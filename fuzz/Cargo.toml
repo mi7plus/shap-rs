@@ -1,0 +1,56 @@
+[package]
+name = "shap-rs-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+serde_json = "1"
+ndarray = "0.16"
+shap-rs = { path = "..", features = ["json-adapters"] }
+
+[[bin]]
+name = "json_adapters"
+path = "fuzz_targets/json_adapters.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "serde_payloads"
+path = "fuzz_targets/serde_payloads.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "tree_validation"
+path = "fuzz_targets/tree_validation.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "partition_trees"
+path = "fuzz_targets/partition_trees.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "maskers"
+path = "fuzz_targets/maskers.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "explanation_selection"
+path = "fuzz_targets/explanation_selection.rs"
+test = false
+doc = false
+bench = false

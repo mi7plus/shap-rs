@@ -6,6 +6,19 @@ use std::fmt;
 /// The result type used by `shap-rs`.
 pub type Result<T> = std::result::Result<T, ShapError>;
 
+pub(crate) fn checked_f64_shape(dimensions: &[usize], context: &str) -> Result<()> {
+    let elements = dimensions
+        .iter()
+        .try_fold(1usize, |size, dimension| size.checked_mul(*dimension));
+    let bytes = elements.and_then(|size| size.checked_mul(std::mem::size_of::<f64>()));
+    if !matches!(bytes, Some(size) if size <= isize::MAX as usize) {
+        return Err(ShapError::InvalidConfiguration(format!(
+            "{context} dimensions overflow the addressable allocation size"
+        )));
+    }
+    Ok(())
+}
+
 /// Errors that can occur while constructing or evaluating SHAP explainers.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum ShapError {
@@ -230,5 +243,12 @@ mod tests {
         }
 
         assert!(returns_result().is_ok());
+    }
+
+    #[test]
+    fn rejects_overflowing_or_unaddressable_shapes() {
+        assert!(checked_f64_shape(&[usize::MAX, 2], "test").is_err());
+        assert!(checked_f64_shape(&[isize::MAX as usize / 8 + 1], "test").is_err());
+        assert!(checked_f64_shape(&[2, 3, 4], "test").is_ok());
     }
 }

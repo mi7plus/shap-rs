@@ -132,6 +132,7 @@ impl Explainer for CorrelatedLinearExplainer {
             ));
         }
         let o = self.intercept.len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "correlated linear explanation")?;
         let mut values = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         let factorial = (0..=m)
@@ -274,6 +275,10 @@ impl Explainer for LinearExplainer {
             });
         }
         let mean = self.background.data().mean_axis(ndarray::Axis(0)).unwrap();
+        crate::error::checked_f64_shape(
+            &[x.nrows(), x.ncols(), self.intercept.len()],
+            "linear explanation",
+        )?;
         let mut v = Array3::zeros((x.nrows(), x.ncols(), self.intercept.len()));
         let mut b = Array2::zeros((x.nrows(), self.intercept.len()));
         for i in 0..x.nrows() {

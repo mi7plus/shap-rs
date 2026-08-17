@@ -7,6 +7,19 @@ pub enum MissingBranch {
     Right,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum SplitComparison {
+    LessThan,
+    LessThanOrEqual,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub enum MissingValuePolicy {
+    NaN,
+    Zero,
+    None,
+}
+
 /// A node in a binary regression tree. `cover` is the training weight reaching
 /// the node and is used to integrate out features that are not observed.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -21,6 +34,25 @@ pub enum Node {
         left: usize,
         right: usize,
         missing: MissingBranch,
+        cover: f64,
+    },
+    NumericalSplit {
+        feature: usize,
+        threshold: f64,
+        comparison: SplitComparison,
+        left: usize,
+        right: usize,
+        missing: MissingBranch,
+        missing_value: MissingValuePolicy,
+        cover: f64,
+    },
+    CategoricalSplit {
+        feature: usize,
+        categories: Vec<i64>,
+        left: usize,
+        right: usize,
+        missing: MissingBranch,
+        missing_value: MissingValuePolicy,
         cover: f64,
     },
 }
@@ -40,17 +72,129 @@ pub struct TreeArrays {
 impl Node {
     pub fn cover(&self) -> f64 {
         match self {
-            Self::Leaf { cover, .. } | Self::Split { cover, .. } => *cover,
+            Self::Leaf { cover, .. }
+            | Self::Split { cover, .. }
+            | Self::NumericalSplit { cover, .. }
+            | Self::CategoricalSplit { cover, .. } => *cover,
+        }
+    }
+
+    pub fn split_feature(&self) -> Option<usize> {
+        match self {
+            Self::Leaf { .. } => None,
+            Self::Split { feature, .. }
+            | Self::NumericalSplit { feature, .. }
+            | Self::CategoricalSplit { feature, .. } => Some(*feature),
+        }
+    }
+
+    pub fn children(&self) -> Option<(usize, usize)> {
+        match self {
+            Self::Leaf { .. } => None,
+            Self::Split { left, right, .. }
+            | Self::NumericalSplit { left, right, .. }
+            | Self::CategoricalSplit { left, right, .. } => Some((*left, *right)),
+        }
+    }
+
+    pub(crate) fn hot_child(&self, value: f64) -> Option<usize> {
+        fn is_missing(value: f64, policy: MissingValuePolicy) -> bool {
+            match policy {
+                MissingValuePolicy::NaN => value.is_nan(),
+                MissingValuePolicy::Zero => value.is_nan() || value == 0.0,
+                MissingValuePolicy::None => false,
+            }
+        }
+        fn missing_child(branch: MissingBranch, left: usize, right: usize) -> usize {
+            match branch {
+                MissingBranch::Left => left,
+                MissingBranch::Right => right,
+            }
+        }
+        match self {
+            Self::Leaf { .. } => None,
+            Self::Split {
+                threshold,
+                left,
+                right,
+                missing,
+                ..
+            } => Some(if value.is_nan() {
+                missing_child(*missing, *left, *right)
+            } else if value <= *threshold {
+                *left
+            } else {
+                *right
+            }),
+            Self::NumericalSplit {
+                threshold,
+                comparison,
+                left,
+                right,
+                missing,
+                missing_value,
+                ..
+            } => Some(if is_missing(value, *missing_value) {
+                missing_child(*missing, *left, *right)
+            } else if match comparison {
+                SplitComparison::LessThan => value < *threshold,
+                SplitComparison::LessThanOrEqual => value <= *threshold,
+            } {
+                *left
+            } else {
+                *right
+            }),
+            Self::CategoricalSplit {
+                categories,
+                left,
+                right,
+                missing,
+                missing_value,
+                ..
+            } => Some(if is_missing(value, *missing_value) {
+                missing_child(*missing, *left, *right)
+            } else if value.is_finite()
+                && value.fract() == 0.0
+                && value >= i64::MIN as f64
+                && value <= i64::MAX as f64
+                && categories.contains(&(value as i64))
+            {
+                *left
+            } else {
+                *right
+            }),
         }
     }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct Tree {
     nodes: Vec<Node>,
     root: usize,
     n_features: usize,
     n_outputs: usize,
+}
+#[derive(serde::Deserialize)]
+struct TreePayload {
+    nodes: Vec<Node>,
+    root: usize,
+    n_features: usize,
+    n_outputs: usize,
+}
+impl<'de> serde::Deserialize<'de> for Tree {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        let payload = <TreePayload as serde::Deserialize>::deserialize(deserializer)?;
+        let tree = Self::new(payload.nodes, payload.root, payload.n_features)
+            .map_err(serde::de::Error::custom)?;
+        if tree.n_outputs() != payload.n_outputs {
+            return Err(serde::de::Error::custom(
+                "serialized tree output count does not match its leaves",
+            ));
+        }
+        Ok(tree)
+    }
 }
 impl Tree {
     /// Revalidates a tree after deserialization or adapter conversion.
@@ -154,6 +298,40 @@ impl Tree {
                         )));
                     }
                 }
+                Node::NumericalSplit {
+                    feature,
+                    left,
+                    right,
+                    threshold,
+                    ..
+                } => {
+                    if *feature >= n_features
+                        || *left >= nodes.len()
+                        || *right >= nodes.len()
+                        || !threshold.is_finite()
+                    {
+                        return Err(ShapError::InvalidConfiguration(format!(
+                            "numerical split node {i} is invalid"
+                        )));
+                    }
+                }
+                Node::CategoricalSplit {
+                    feature,
+                    categories,
+                    left,
+                    right,
+                    ..
+                } => {
+                    if *feature >= n_features
+                        || *left >= nodes.len()
+                        || *right >= nodes.len()
+                        || categories.is_empty()
+                    {
+                        return Err(ShapError::InvalidConfiguration(format!(
+                            "categorical split node {i} is invalid"
+                        )));
+                    }
+                }
             }
         }
         let n_outputs =
@@ -180,9 +358,9 @@ impl Tree {
                 ));
             }
             state[i] = 1;
-            if let Node::Split { left, right, .. } = &t.nodes[i] {
-                visit(t, *left, state)?;
-                visit(t, *right, state)?;
+            if let Some((left, right)) = t.nodes[i].children() {
+                visit(t, left, state)?;
+                visit(t, right, state)?;
             }
             state[i] = 2;
             Ok(())
@@ -219,25 +397,7 @@ impl Tree {
         loop {
             match &self.nodes[i] {
                 Node::Leaf { values, .. } => return Ok(values),
-                Node::Split {
-                    feature,
-                    threshold,
-                    left,
-                    right,
-                    missing,
-                    ..
-                } => {
-                    i = if x[*feature].is_nan() {
-                        match missing {
-                            MissingBranch::Left => *left,
-                            MissingBranch::Right => *right,
-                        }
-                    } else if x[*feature] <= *threshold {
-                        *left
-                    } else {
-                        *right
-                    }
-                }
+                node => i = node.hot_child(x[node.split_feature().unwrap()]).unwrap(),
             }
         }
     }
@@ -245,12 +405,13 @@ impl Tree {
         fn rec(t: &Tree, i: usize) -> Vec<f64> {
             match &t.nodes[i] {
                 Node::Leaf { values, .. } => values.clone(),
-                Node::Split { left, right, .. } => {
-                    let a = rec(t, *left);
-                    let b = rec(t, *right);
-                    let total = t.nodes[*left].cover() + t.nodes[*right].cover();
+                node => {
+                    let (left, right) = node.children().unwrap();
+                    let a = rec(t, left);
+                    let b = rec(t, right);
+                    let total = t.nodes[left].cover() + t.nodes[right].cover();
                     let p = if total > 0.0 {
-                        t.nodes[*left].cover() / total
+                        t.nodes[left].cover() / total
                     } else {
                         0.5
                     };
@@ -268,32 +429,18 @@ impl Tree {
         fn rec(t: &Tree, i: usize, x: ArrayView1<'_, f64>, p: &[bool]) -> Vec<f64> {
             match &t.nodes[i] {
                 Node::Leaf { values, .. } => values.clone(),
-                Node::Split {
-                    feature,
-                    threshold,
-                    left,
-                    right,
-                    missing,
-                    ..
-                } => {
-                    if p[*feature] {
-                        let c = if x[*feature].is_nan() {
-                            match missing {
-                                MissingBranch::Left => *left,
-                                MissingBranch::Right => *right,
-                            }
-                        } else if x[*feature] <= *threshold {
-                            *left
-                        } else {
-                            *right
-                        };
+                node => {
+                    let feature = node.split_feature().unwrap();
+                    let (left, right) = node.children().unwrap();
+                    if p[feature] {
+                        let c = node.hot_child(x[feature]).unwrap();
                         rec(t, c, x, p)
                     } else {
-                        let a = rec(t, *left, x, p);
-                        let b = rec(t, *right, x, p);
-                        let total = t.nodes[*left].cover() + t.nodes[*right].cover();
+                        let a = rec(t, left, x, p);
+                        let b = rec(t, right, x, p);
+                        let total = t.nodes[left].cover() + t.nodes[right].cover();
                         let q = if total > 0.0 {
-                            t.nodes[*left].cover() / total
+                            t.nodes[left].cover() / total
                         } else {
                             0.5
                         };
@@ -309,14 +456,55 @@ impl Tree {
     }
 }
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct TreeEnsemble {
     trees: Vec<(Tree, f64)>,
+    output_groups: Vec<Option<usize>>,
     base_values: Array1<f64>,
     n_features: usize,
 }
+#[derive(serde::Deserialize)]
+struct TreeEnsemblePayload {
+    trees: Vec<(Tree, f64)>,
+    #[serde(default)]
+    output_groups: Vec<Option<usize>>,
+    base_values: Array1<f64>,
+    n_features: usize,
+}
+impl<'de> serde::Deserialize<'de> for TreeEnsemble {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        let payload = <TreeEnsemblePayload as serde::Deserialize>::deserialize(deserializer)?;
+        let ensemble = if payload.output_groups.is_empty() {
+            Self::new(payload.trees, payload.base_values.to_vec())
+        } else {
+            Self::new_with_output_groups(
+                payload.trees,
+                payload.base_values.to_vec(),
+                payload.output_groups,
+            )
+        }
+        .map_err(serde::de::Error::custom)?;
+        if ensemble.n_features() != payload.n_features {
+            return Err(serde::de::Error::custom(
+                "serialized ensemble feature count does not match its trees",
+            ));
+        }
+        Ok(ensemble)
+    }
+}
 impl TreeEnsemble {
     pub fn new(trees: Vec<(Tree, f64)>, base_values: Vec<f64>) -> Result<Self> {
+        let groups = vec![None; trees.len()];
+        Self::new_with_output_groups(trees, base_values, groups)
+    }
+
+    pub fn new_with_output_groups(
+        trees: Vec<(Tree, f64)>,
+        base_values: Vec<f64>,
+        output_groups: Vec<Option<usize>>,
+    ) -> Result<Self> {
         if trees.is_empty() {
             return Err(ShapError::InvalidConfiguration(
                 "ensemble must contain a tree".into(),
@@ -325,6 +513,8 @@ impl TreeEnsemble {
         let nf = trees[0].0.n_features();
         let no = trees[0].0.n_outputs();
         if base_values.len() != no
+            || output_groups.len() != trees.len()
+            || output_groups.iter().flatten().any(|&group| group >= no)
             || base_values.iter().any(|v| !v.is_finite())
             || trees
                 .iter()
@@ -337,12 +527,16 @@ impl TreeEnsemble {
         }
         Ok(Self {
             trees,
+            output_groups,
             base_values: Array1::from(base_values),
             n_features: nf,
         })
     }
     pub fn trees(&self) -> &[(Tree, f64)] {
         &self.trees
+    }
+    pub fn output_groups(&self) -> &[Option<usize>] {
+        &self.output_groups
     }
     pub fn base_offset(&self) -> ndarray::ArrayView1<'_, f64> {
         self.base_values.view()
@@ -362,6 +556,32 @@ impl TreeEnsemble {
         }
         v
     }
+    /// Predicts raw tree outputs with a per-sample base margin replacing the
+    /// ensemble's fixed base offset (matching XGBoost `base_margin` semantics).
+    pub fn predict_with_base_margin(
+        &self,
+        x: ArrayView2<'_, f64>,
+        base_margin: ArrayView2<'_, f64>,
+    ) -> Result<Array2<f64>> {
+        if base_margin.dim() != (x.nrows(), self.n_outputs()) {
+            return Err(ShapError::DimensionMismatch {
+                expected: format!("({}, {}) base margins", x.nrows(), self.n_outputs()),
+                found: format!("{:?}", base_margin.dim()),
+            });
+        }
+        if base_margin.iter().any(|value| !value.is_finite()) {
+            return Err(ShapError::InvalidConfiguration(
+                "base margins must be finite".into(),
+            ));
+        }
+        let mut prediction = self.predict(x)?;
+        for row in 0..prediction.nrows() {
+            for output in 0..prediction.ncols() {
+                prediction[[row, output]] += base_margin[[row, output]] - self.base_values[output];
+            }
+        }
+        Ok(prediction)
+    }
     /// Revalidates all trees and ensemble dimensions after deserialization.
     pub fn validate(&self) -> Result<()> {
         for (t, w) in &self.trees {
@@ -372,18 +592,25 @@ impl TreeEnsemble {
                 ));
             }
         }
-        Self::new(self.trees.clone(), self.base_values.to_vec()).map(|_| ())
+        Self::new_with_output_groups(
+            self.trees.clone(),
+            self.base_values.to_vec(),
+            self.output_groups.clone(),
+        )
+        .map(|_| ())
     }
 }
 
 impl Predict for TreeEnsemble {
     fn predict(&self, x: ArrayView2<'_, f64>) -> Result<Array2<f64>> {
+        self.validate()?;
         if x.ncols() != self.n_features {
             return Err(ShapError::DimensionMismatch {
                 expected: format!("{} features", self.n_features),
                 found: format!("{}", x.ncols()),
             });
         }
+        crate::error::checked_f64_shape(&[x.nrows(), self.base_values.len()], "tree prediction")?;
         let mut out = Array2::from_shape_fn((x.nrows(), self.base_values.len()), |(_, o)| {
             self.base_values[o]
         });

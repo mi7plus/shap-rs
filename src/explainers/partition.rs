@@ -1,8 +1,20 @@
 /// A validated, non-overlapping partition of all input features.
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "FeaturePartitionPayload")]
 pub struct FeaturePartition {
     groups: Vec<Vec<usize>>,
     n_features: usize,
+}
+#[derive(serde::Deserialize)]
+struct FeaturePartitionPayload {
+    groups: Vec<Vec<usize>>,
+    n_features: usize,
+}
+impl TryFrom<FeaturePartitionPayload> for FeaturePartition {
+    type Error = ShapError;
+    fn try_from(payload: FeaturePartitionPayload) -> Result<Self> {
+        Self::new(payload.groups, payload.n_features)
+    }
 }
 
 use crate::{
@@ -10,6 +22,7 @@ use crate::{
     Explanation, IndependentMasker, Link, Masker, Predict, Result, ShapError,
 };
 use ndarray::{Array2, Array3, ArrayView2};
+use rand::{rngs::StdRng, Rng, SeedableRng};
 
 /// Exact Owen values for a partition of the input features. This preserves
 /// group boundaries while allocating each group's contribution among members.
@@ -67,9 +80,9 @@ impl<M: Predict, K: Masker> Explainer for PartitionExplainer<M, K> {
         if x.nrows() == 0 {
             return Err(ShapError::EmptyData);
         }
-        if x.ncols() != m {
+        if x.ncols() != self.masker.n_input_features() {
             return Err(ShapError::DimensionMismatch {
-                expected: format!("{m} features"),
+                expected: format!("{} input features", self.masker.n_input_features()),
                 found: format!("{}", x.ncols()),
             });
         }
@@ -82,6 +95,7 @@ impl<M: Predict, K: Masker> Explainer for PartitionExplainer<M, K> {
         let masks = coalition::all(m).collect::<Vec<_>>();
         let mut first = CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let o = first.evaluate(x.row(0), &[0])?[0].len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "partition explanation")?;
         let mut values = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         let groups = self.partition.groups();
@@ -146,7 +160,7 @@ impl<M: Predict, K: Masker> Explainer for PartitionExplainer<M, K> {
                 }
             }
         }
-        Explanation::new(values, bases, x.to_owned())
+        Explanation::new(values, bases, self.masker.attribution_data(x)?)
     }
 }
 fn factorials(n: usize) -> Vec<f64> {
@@ -166,9 +180,21 @@ pub enum PartitionNode {
     Group(Box<PartitionNode>, Box<PartitionNode>),
 }
 #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "PartitionTreePayload")]
 pub struct PartitionTree {
     root: PartitionNode,
     n_features: usize,
+}
+#[derive(serde::Deserialize)]
+struct PartitionTreePayload {
+    root: PartitionNode,
+    n_features: usize,
+}
+impl TryFrom<PartitionTreePayload> for PartitionTree {
+    type Error = ShapError;
+    fn try_from(payload: PartitionTreePayload) -> Result<Self> {
+        Self::new(payload.root, payload.n_features)
+    }
 }
 impl PartitionTree {
     pub fn new(root: PartitionNode, n_features: usize) -> Result<Self> {
@@ -248,6 +274,27 @@ impl PartitionTree {
         }
         rec(&self.root)
     }
+
+    fn sampled_permutations(&self, samples: usize, seed: u64) -> Vec<Vec<usize>> {
+        fn sample(node: &PartitionNode, rng: &mut StdRng) -> Vec<usize> {
+            match node {
+                PartitionNode::Feature(feature) => vec![*feature],
+                PartitionNode::Group(left, right) => {
+                    let mut left = sample(left, rng);
+                    let mut right = sample(right, rng);
+                    if rng.gen_bool(0.5) {
+                        left.append(&mut right);
+                        left
+                    } else {
+                        right.append(&mut left);
+                        right
+                    }
+                }
+            }
+        }
+        let mut rng = StdRng::seed_from_u64(seed);
+        (0..samples).map(|_| sample(&self.root, &mut rng)).collect()
+    }
 }
 
 /// Exact hierarchical Owen values for a binary feature partition tree.
@@ -256,6 +303,7 @@ pub struct HierarchicalPartitionExplainer<M, K = IndependentMasker> {
     masker: K,
     tree: PartitionTree,
     max_permutations: usize,
+    approximate_samples: Option<(usize, u64)>,
     evaluation: EvaluationConfig,
     link: Link,
 }
@@ -271,6 +319,7 @@ impl<M, K> HierarchicalPartitionExplainer<M, K> {
             masker,
             tree,
             max_permutations: 65536,
+            approximate_samples: None,
             evaluation: EvaluationConfig {
                 coalition_batch_size: 64,
                 cache_capacity: 1 << 20,
@@ -281,6 +330,12 @@ impl<M, K> HierarchicalPartitionExplainer<M, K> {
     }
     pub fn with_max_permutations(mut self, n: usize) -> Self {
         self.max_permutations = n;
+        self
+    }
+    /// Enables deterministic Monte Carlo hierarchy-consistent permutations
+    /// when exact enumeration exceeds `max_permutations`.
+    pub fn with_approximate_samples(mut self, samples: usize, seed: u64) -> Self {
+        self.approximate_samples = Some((samples, seed));
         self
     }
     pub fn with_evaluation_config(mut self, c: EvaluationConfig) -> Self {
@@ -299,9 +354,12 @@ impl<M: Predict, K: Masker> Explainer for HierarchicalPartitionExplainer<M, K> {
         if x.nrows() == 0 {
             return Err(ShapError::EmptyData);
         }
-        if x.ncols() != m || self.tree.n_features() != m {
+        if x.ncols() != self.masker.n_input_features() || self.tree.n_features() != m {
             return Err(ShapError::DimensionMismatch {
-                expected: format!("{m} features in data and hierarchy"),
+                expected: format!(
+                    "{} input features and {m} features in hierarchy",
+                    self.masker.n_input_features()
+                ),
                 found: format!("data {}, hierarchy {}", x.ncols(), self.tree.n_features()),
             });
         }
@@ -313,20 +371,34 @@ impl<M: Predict, K: Masker> Explainer for HierarchicalPartitionExplainer<M, K> {
         let permutation_count = self.tree.permutation_count().ok_or_else(|| {
             ShapError::InvalidConfiguration("hierarchy permutation count overflowed".into())
         })?;
-        if permutation_count > self.max_permutations {
-            return Err(ShapError::InvalidConfiguration(format!(
-                "hierarchy generates {} permutations, exceeding limit {}",
-                permutation_count, self.max_permutations
-            )));
-        }
-        let permutations = self.tree.permutations();
+        let permutations = if permutation_count > self.max_permutations {
+            let (samples, seed) = self.approximate_samples.ok_or_else(|| {
+                ShapError::InvalidConfiguration(format!(
+                    "hierarchy generates {} permutations, exceeding limit {}",
+                    permutation_count, self.max_permutations
+                ))
+            })?;
+            if samples == 0 {
+                return Err(ShapError::InvalidConfiguration(
+                    "approximate hierarchy samples must be positive".into(),
+                ));
+            }
+            self.tree.sampled_permutations(samples, seed)
+        } else {
+            self.tree.permutations()
+        };
+        let step_count = permutations.len().checked_mul(m).ok_or_else(|| {
+            ShapError::InvalidConfiguration("hierarchy step count overflowed".into())
+        })?;
+        crate::error::checked_f64_shape(&[step_count], "hierarchy permutation steps")?;
         let mut probe = CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let o = probe.evaluate(x.row(0), &[0])?[0].len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "hierarchical explanation")?;
         let mut values = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         for n in 0..x.nrows() {
             let mut requested = vec![0u64];
-            let mut steps = Vec::with_capacity(permutations.len() * m);
+            let mut steps = Vec::with_capacity(step_count);
             for order in &permutations {
                 let mut mask = 0;
                 let mut before = 0;
@@ -359,7 +431,7 @@ impl<M: Predict, K: Masker> Explainer for HierarchicalPartitionExplainer<M, K> {
                 }
             }
         }
-        Explanation::new(values, bases, x.to_owned())
+        Explanation::new(values, bases, self.masker.attribution_data(x)?)
     }
 }
 
@@ -422,7 +494,7 @@ pub fn correlation_partition(background: &Background) -> Result<PartitionTree> {
 #[allow(clippy::items_after_test_module)]
 mod tests {
     use super::*;
-    use crate::{metrics::check_additivity, FnModel};
+    use crate::{metrics::check_additivity, FixedMasker, FnModel, GroupedMasker};
     use ndarray::{array, ArrayView2, Axis};
     #[test]
     fn owen_values_respect_groups_and_local_accuracy() {
@@ -439,6 +511,27 @@ mod tests {
         assert!((e.values()[[0, 1, 0]] - 0.5).abs() < 1e-12);
         assert!((e.values()[[0, 2, 0]] - 1.).abs() < 1e-12);
         check_additivity(&e, array![[2.]].view(), 1e-12).unwrap();
+    }
+    #[test]
+    fn partition_explainer_preserves_structured_source_groups() {
+        let model = FnModel::new(|x: ArrayView2<'_, f64>| {
+            Ok(x.map_axis(Axis(1), |row| row[0] * row[1] + row[2])
+                .insert_axis(Axis(1)))
+        });
+        let masker = GroupedMasker::new(
+            FixedMasker::new(array![0., 0., 0.]).unwrap(),
+            vec![vec![0, 1], vec![2]],
+        )
+        .unwrap();
+        let explanation = PartitionExplainer::from_masker(
+            model,
+            masker,
+            FeaturePartition::new(vec![vec![0], vec![1]], 2).unwrap(),
+        )
+        .explain(array![[2., 3., 4.]].view())
+        .unwrap();
+        assert_eq!(explanation.values(), &array![[[6.], [4.]]]);
+        assert_eq!(explanation.data(), array![[2.5, 4.]].view());
     }
     #[test]
     fn hierarchical_owen_values_are_locally_accurate() {
@@ -503,11 +596,24 @@ mod tests {
         let result = HierarchicalPartitionExplainer::new(
             model,
             Background::new(Array2::zeros((1, 18))).unwrap(),
-            tree,
+            tree.clone(),
         )
         .with_max_permutations(16)
         .explain(Array2::ones((1, 18)).view());
         assert!(matches!(result, Err(ShapError::InvalidConfiguration(_))));
+        let approximate = HierarchicalPartitionExplainer::new(
+            FnModel::new(|x: ArrayView2<'_, f64>| Ok(x.sum_axis(Axis(1)).insert_axis(Axis(1)))),
+            Background::new(Array2::zeros((1, 18))).unwrap(),
+            tree,
+        )
+        .with_max_permutations(16)
+        .with_approximate_samples(32, 7)
+        .explain(Array2::ones((1, 18)).view())
+        .unwrap();
+        assert!(approximate
+            .values()
+            .iter()
+            .all(|value| (*value - 1.0).abs() < 1e-12));
     }
     #[test]
     fn binary_hierarchy_matches_flat_owen_values_for_two_groups() {

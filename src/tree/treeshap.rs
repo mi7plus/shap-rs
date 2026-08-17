@@ -1,5 +1,5 @@
 use super::{
-    model::{MissingBranch, Node, Tree},
+    model::{Node, Tree},
     path::{extend, unwind, unwound_sum, PathElement},
 };
 use ndarray::ArrayView1;
@@ -58,26 +58,12 @@ fn recurse(
                 }
             }
         }
-        Node::Split {
-            feature,
-            threshold,
-            left,
-            right,
-            missing,
-            ..
-        } => {
-            let hot = if x[*feature].is_nan() {
-                match missing {
-                    MissingBranch::Left => *left,
-                    MissingBranch::Right => *right,
-                }
-            } else if x[*feature] <= *threshold {
-                *left
-            } else {
-                *right
-            };
-            let cold = if hot == *left { *right } else { *left };
-            let total = tree.nodes()[*left].cover() + tree.nodes()[*right].cover();
+        split => {
+            let feature = split.split_feature().unwrap();
+            let (left, right) = split.children().unwrap();
+            let hot = split.hot_child(x[feature]).unwrap();
+            let cold = if hot == left { right } else { left };
+            let total = tree.nodes()[left].cover() + tree.nodes()[right].cover();
             let hot_zero = if total > 0.0 {
                 tree.nodes()[hot].cover() / total
             } else {
@@ -90,14 +76,14 @@ fn recurse(
             };
             let mut incoming_zero = 1.0;
             let mut incoming_one = 1.0;
-            if let Some(i) = path.iter().position(|e| e.feature == *feature) {
+            if let Some(i) = path.iter().position(|e| e.feature == feature) {
                 incoming_zero = path[i].zero;
                 incoming_one = path[i].one;
                 unwind(&mut path, i);
             }
             let mut hot_condition_fraction = condition_fraction;
             let mut cold_condition_fraction = condition_fraction;
-            if *feature == condition_feature {
+            if feature == condition_feature {
                 if condition > 0 {
                     cold_condition_fraction = 0.0;
                 } else if condition < 0 {
@@ -111,7 +97,7 @@ fn recurse(
                 x,
                 phi,
                 path.clone(),
-                *feature,
+                feature,
                 hot_zero * incoming_zero,
                 incoming_one,
                 condition_feature,
@@ -124,7 +110,7 @@ fn recurse(
                 x,
                 phi,
                 path,
-                *feature,
+                feature,
                 cold_zero * incoming_zero,
                 0.0,
                 condition_feature,
@@ -138,7 +124,7 @@ fn recurse(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::coalition;
+    use crate::{coalition, MissingBranch};
     use ndarray::Array1;
     use rand::{rngs::StdRng, Rng, SeedableRng};
     fn random_tree(rng: &mut StdRng, depth: usize, m: usize) -> Tree {

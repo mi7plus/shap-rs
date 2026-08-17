@@ -66,6 +66,12 @@ impl<M, K> KernelExplainer<M, K> {
             ));
         }
         if m < 63 && m <= self.exact_threshold {
+            let count = usize::try_from((1u64 << m) - 2).map_err(|_| {
+                ShapError::InvalidConfiguration(
+                    "exact Kernel SHAP coalition count exceeds usize".into(),
+                )
+            })?;
+            crate::error::checked_f64_shape(&[count], "Kernel SHAP coalition set")?;
             return Ok((1..(1u64 << m) - 1).collect());
         }
         let full = if m < 64 {
@@ -74,10 +80,11 @@ impl<M, K> KernelExplainer<M, K> {
             u64::MAX
         };
         let target = self.nsamples.min(if m < 63 {
-            ((1u64 << m) - 2) as usize
+            usize::try_from((1u64 << m) - 2).unwrap_or(usize::MAX)
         } else {
             usize::MAX
         });
+        crate::error::checked_f64_shape(&[target], "Kernel SHAP coalition set")?;
         let mut set = BTreeSet::new();
         let mut rng = StdRng::seed_from_u64(self.seed);
         while set.len() + 2 <= target {
@@ -113,9 +120,9 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
                 "ridge must be finite and non-negative".into(),
             ));
         }
-        if x.ncols() != m {
+        if x.ncols() != self.masker.n_input_features() {
             return Err(ShapError::DimensionMismatch {
-                expected: format!("{m} features"),
+                expected: format!("{} input features", self.masker.n_input_features()),
                 found: format!("{}", x.ncols()),
             });
         }
@@ -124,6 +131,7 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
         let mut first_eval = CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let probe = first_eval.evaluate(x.row(0), &[0])?.remove(0);
         let o = probe.len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "kernel explanation")?;
         let mut v = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         for n in 0..x.nrows() {
@@ -152,6 +160,8 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
                 continue;
             }
             let p = m - 1;
+            crate::error::checked_f64_shape(&[p, p], "Kernel SHAP linear system")?;
+            crate::error::checked_f64_shape(&[p, o], "Kernel SHAP right-hand side")?;
             let mut a = vec![vec![0.; p]; p];
             let mut b = vec![vec![0.; o]; p];
             for (row, &mask) in masks.iter().enumerate() {
@@ -186,7 +196,7 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
                 v[[n, m - 1, k]] = full[k] - base[k] - sum
             }
         }
-        Explanation::new(v, bases, x.to_owned())
+        Explanation::new(v, bases, self.masker.attribution_data(x)?)
     }
 }
 #[allow(clippy::needless_range_loop)]

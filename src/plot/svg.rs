@@ -1,6 +1,6 @@
 //! Dependency-free SVG renderers for explanation summaries.
 
-use crate::{Explanation, Result, ShapError};
+use crate::{Explanation, FeatureKind, OutputKind, Result, ShapError};
 use std::fmt::Write;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -118,7 +118,8 @@ pub fn beeswarm(e: &Explanation, output: usize, options: &SvgOptions) -> Result<
         .take(options.max_features)
         .map(|(feature, _)| feature)
         .collect::<Vec<_>>();
-    let title = options.title.as_deref().unwrap_or("SHAP beeswarm");
+    let default_title = format!("SHAP beeswarm — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = (options.width as f64 * 0.28).clamp(100.0, 220.0);
     let right = 34.0;
     let top = 58.0;
@@ -170,7 +171,9 @@ pub fn beeswarm(e: &Explanation, output: usize, options: &SvgOptions) -> Result<
             } else {
                 0.5
             };
-            let color = if normalized >= 0.5 {
+            let color = if !feature_value.is_finite() {
+                "#777777"
+            } else if normalized >= 0.5 {
                 &options.positive_color
             } else {
                 &options.negative_color
@@ -178,11 +181,15 @@ pub fn beeswarm(e: &Explanation, output: usize, options: &SvgOptions) -> Result<
             let opacity = 0.45 + 0.5 * (normalized - 0.5).abs() * 2.0;
             write!(
                 svg,
-                "<circle cx=\"{x:.2}\" cy=\"{y:.2}\" r=\"3.2\" fill=\"{}\" fill-opacity=\"{opacity:.3}\"><title>sample {sample}, SHAP {shap:.6}, value {feature_value}</title></circle>",
+                "<circle cx=\"{x:.2}\" cy=\"{y:.2}\" r=\"3.2\" fill=\"{}\" fill-opacity=\"{opacity:.3}\"><title>sample {sample}, SHAP {shap:.6}, value {}</title></circle>",
                 escape(color),
+                escape(&feature_value_label(e, feature, feature_value)),
             )
             .unwrap();
         }
+    }
+    if e.data().iter().any(|value| value.is_nan()) {
+        write!(svg, "<text x=\"{}\" y=\"{}\" text-anchor=\"end\" font-size=\"11\" fill=\"#777777\">● missing</text>", options.width - 18, options.height - 10).unwrap();
     }
     svg.push_str("</g></svg>");
     Ok(svg)
@@ -198,7 +205,8 @@ pub fn heatmap(e: &Explanation, output: usize, options: &SvgOptions) -> Result<S
         .into_iter()
         .take(options.max_features)
         .collect::<Vec<_>>();
-    let title = options.title.as_deref().unwrap_or("SHAP heatmap");
+    let default_title = format!("SHAP heatmap — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = (options.width as f64 * 0.24).clamp(90.0, 190.0);
     let right = 24.0;
     let top = 58.0;
@@ -267,6 +275,18 @@ pub fn scatter(
     let min_x = finite_x.iter().copied().fold(f64::INFINITY, f64::min);
     let max_x = finite_x.iter().copied().fold(f64::NEG_INFINITY, f64::max);
     let x_span = if max_x > min_x { max_x - min_x } else { 1.0 };
+    let categorical = matches!(
+        feature_kind(e, feature),
+        FeatureKind::Categorical | FeatureKind::Ordinal | FeatureKind::Boolean
+    );
+    let mut categories = if categorical {
+        finite_x.clone()
+    } else {
+        Vec::new()
+    };
+    categories.sort_by(f64::total_cmp);
+    categories.dedup_by(|a, b| a.total_cmp(b).is_eq());
+    let has_missing = points.iter().any(|point| point.feature_value.is_nan());
     let max_y = points
         .iter()
         .map(|point| point.shap_value.abs())
@@ -282,7 +302,8 @@ pub fn scatter(
         .iter()
         .copied()
         .fold(f64::NEG_INFINITY, f64::max);
-    let title = options.title.as_deref().unwrap_or("SHAP dependence");
+    let default_title = format!("SHAP dependence — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = 70.0;
     let right = 28.0;
     let top = 58.0;
@@ -302,8 +323,33 @@ pub fn scatter(
         escape(&feature_label(e, feature)),
     )
     .unwrap();
+    if categorical && categories.len() <= 16 {
+        for (index, value) in categories.iter().enumerate() {
+            let x = if categories.len() == 1 {
+                left + chart_width / 2.0
+            } else {
+                left + index as f64 / (categories.len() - 1) as f64 * chart_width
+            };
+            write!(svg, "<line x1=\"{x:.2}\" y1=\"{}\" x2=\"{x:.2}\" y2=\"{}\" stroke=\"#9aa0a6\"/><text x=\"{x:.2}\" y=\"{}\" text-anchor=\"middle\" font-size=\"11\" fill=\"{}\">{}</text>", options.height as f64 - bottom, options.height as f64 - bottom + 5.0, options.height as f64 - bottom + 18.0, escape(&options.text_color), escape(&feature_value_label(e, feature, *value))).unwrap();
+        }
+    }
+    if has_missing {
+        write!(
+            svg,
+            "<text x=\"{left}\" y=\"{}\" font-size=\"11\" fill=\"#777777\">● missing</text>",
+            top - 8.0
+        )
+        .unwrap();
+    }
     for point in points {
-        let x = if point.feature_value.is_finite() && min_x.is_finite() {
+        let x = if categorical && point.feature_value.is_finite() && categories.len() > 1 {
+            let index = categories
+                .binary_search_by(|value| value.total_cmp(&point.feature_value))
+                .unwrap_or(0);
+            left + index as f64 / (categories.len() - 1) as f64 * chart_width
+        } else if categorical && point.feature_value.is_finite() {
+            left + chart_width / 2.0
+        } else if point.feature_value.is_finite() && min_x.is_finite() {
             left + (point.feature_value - min_x) / x_span * chart_width
         } else {
             left
@@ -315,7 +361,11 @@ pub fn scatter(
             }
             _ => 0.5,
         };
-        let color = if color_feature.is_none() || normalized >= 0.5 {
+        let color = if !point.feature_value.is_finite()
+            || point.color_value.is_some_and(|value| !value.is_finite())
+        {
+            "#777777"
+        } else if color_feature.is_none() || normalized >= 0.5 {
             &options.positive_color
         } else {
             &options.negative_color
@@ -325,7 +375,7 @@ pub fn scatter(
             "<circle cx=\"{x:.2}\" cy=\"{y:.2}\" r=\"4\" fill=\"{}\" fill-opacity=\"0.72\"><title>sample {}, feature {}, SHAP {:.6}</title></circle>",
             escape(color),
             point.sample,
-            point.feature_value,
+            escape(&feature_value_label(e, feature, point.feature_value)),
             point.shap_value,
         )
         .unwrap();
@@ -377,7 +427,8 @@ pub fn decision(e: &Explanation, output: usize, options: &SvgOptions) -> Result<
         .copied()
         .fold(f64::NEG_INFINITY, f64::max);
     let span = (maximum - minimum).max(1e-12);
-    let title = options.title.as_deref().unwrap_or("SHAP decision paths");
+    let default_title = format!("SHAP decision paths — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = 72.0;
     let right = 30.0;
     let top = 58.0;
@@ -477,7 +528,8 @@ pub fn force(
     let padding = ((maximum - minimum) * 0.08).max(1e-9);
     let domain_min = minimum - padding;
     let domain_span = maximum - minimum + 2.0 * padding;
-    let title = options.title.as_deref().unwrap_or("SHAP force plot");
+    let default_title = format!("SHAP force plot — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = 36.0;
     let right = 36.0;
     let chart_width = options.width as f64 - left - right;
@@ -604,12 +656,8 @@ pub fn waterfall(
         .chain([base, prediction])
         .fold(f64::NEG_INFINITY, f64::max);
     let span = (maximum - minimum).max(1e-12);
-    let title = options.title.as_deref().unwrap_or_else(|| {
-        e.output_names()
-            .and_then(|names| names.get(output))
-            .map(String::as_str)
-            .unwrap_or("SHAP waterfall")
-    });
+    let default_title = format!("SHAP waterfall — {}", output_label(e, output));
+    let title = options.title.as_deref().unwrap_or(&default_title);
     let left = 170.0;
     let right = 38.0;
     let top = 70.0;
@@ -677,12 +725,70 @@ fn header(options: &SvgOptions, title: &str) -> String {
 }
 
 fn feature_label(e: &Explanation, feature: usize) -> String {
-    e.feature_metadata()
+    let name = e
+        .feature_metadata()
         .and_then(|metadata| metadata.display_names.as_ref())
         .and_then(|names| names.get(feature))
         .or_else(|| e.feature_names().and_then(|names| names.get(feature)))
         .cloned()
-        .unwrap_or_else(|| format!("Feature {feature}"))
+        .unwrap_or_else(|| format!("Feature {feature}"));
+    match e
+        .feature_metadata()
+        .and_then(|metadata| metadata.units.as_ref())
+        .and_then(|units| units.get(feature))
+        .and_then(Option::as_deref)
+    {
+        Some(unit) if !unit.is_empty() => format!("{name} ({unit})"),
+        _ => name,
+    }
+}
+
+fn feature_kind(e: &Explanation, feature: usize) -> FeatureKind {
+    e.feature_metadata()
+        .and_then(|metadata| metadata.kinds.as_ref())
+        .and_then(|kinds| kinds.get(feature))
+        .copied()
+        .unwrap_or_default()
+}
+
+fn feature_value_label(e: &Explanation, feature: usize, value: f64) -> String {
+    if value.is_nan() {
+        return "missing".into();
+    }
+    match feature_kind(e, feature) {
+        FeatureKind::Boolean => {
+            if value == 0.0 {
+                "false".into()
+            } else if value == 1.0 {
+                "true".into()
+            } else {
+                format!("category {value}")
+            }
+        }
+        FeatureKind::Categorical | FeatureKind::Ordinal => format!("category {value}"),
+        _ => format!("{value}"),
+    }
+}
+
+fn output_label(e: &Explanation, output: usize) -> String {
+    let name = e
+        .output_names()
+        .and_then(|names| names.get(output))
+        .cloned()
+        .unwrap_or_else(|| format!("output {output}"));
+    let kind = e
+        .output_metadata()
+        .and_then(|metadata| metadata.kinds.as_ref())
+        .and_then(|kinds| kinds.get(output))
+        .copied()
+        .unwrap_or_default();
+    match kind {
+        OutputKind::Probability => format!("{name} probability"),
+        OutputKind::LogOdds => format!("{name} log odds"),
+        OutputKind::ClassScore => format!("{name} class score"),
+        OutputKind::Embedding => format!("{name} embedding value"),
+        OutputKind::Regression => name,
+    }
 }
 
 fn deterministic_unit(sample: usize, feature: usize) -> f64 {
@@ -780,6 +886,41 @@ mod tests {
     }
 
     #[test]
+    fn formats_categorical_missing_units_and_probability_labels() {
+        let explanation = Explanation::new(
+            Array3::from_shape_vec((3, 2, 1), vec![1., 0., 2., 0., 3., 0.]).unwrap(),
+            array![[0.], [0.], [0.]],
+            array![[0., 20.], [1., 30.], [f64::NAN, 40.]],
+        )
+        .unwrap()
+        .with_feature_metadata(
+            FeatureMetadata::new(vec!["segment".into(), "age".into()])
+                .unwrap()
+                .with_kinds(vec![FeatureKind::Categorical, FeatureKind::Continuous])
+                .unwrap()
+                .with_units(vec![None, Some("years".into())])
+                .unwrap(),
+        )
+        .unwrap()
+        .with_output_metadata(
+            OutputMetadata::new(vec!["churn".into()])
+                .unwrap()
+                .with_kinds(vec![OutputKind::Probability])
+                .unwrap(),
+        )
+        .unwrap();
+        let scatter = super::scatter(&explanation, 0, 0, None, &SvgOptions::default()).unwrap();
+        assert!(scatter.contains("category 0"));
+        assert!(scatter.contains("category 1"));
+        assert!(scatter.contains("missing"));
+        assert!(scatter.contains("churn probability"));
+        let bar = global_bar(&explanation, &SvgOptions::default()).unwrap();
+        assert!(bar.contains("age (years)"));
+        let beeswarm = beeswarm(&explanation, 0, &SvgOptions::default()).unwrap();
+        assert!(beeswarm.contains("● missing"));
+    }
+
+    #[test]
     fn renders_additive_force_plot_and_aggregates_omitted_features() {
         let e = explanation();
         let options = SvgOptions {
@@ -790,5 +931,35 @@ mod tests {
         assert!(force.contains("<polygon"));
         assert!(force.contains("2 other features"));
         assert!(force.contains("output 2.50000"));
+    }
+
+    #[test]
+    fn every_renderer_produces_a_parseable_accessible_svg_tree() {
+        let e = explanation();
+        let options = SvgOptions::default();
+        let documents = [
+            global_bar(&e, &options).unwrap(),
+            super::waterfall(&e, 0, 0, &options).unwrap(),
+            force(&e, 0, 0, &options).unwrap(),
+            beeswarm(&e, 0, &options).unwrap(),
+            heatmap(&e, 0, &options).unwrap(),
+            super::scatter(&e, 0, 0, Some(1), &options).unwrap(),
+            decision(&e, 0, &options).unwrap(),
+        ];
+        for svg in documents {
+            let document = roxmltree::Document::parse(&svg).unwrap();
+            let root = document.root_element();
+            assert_eq!(root.tag_name().name(), "svg");
+            assert_eq!(root.attribute("role"), Some("img"));
+            assert!(root
+                .attribute("aria-label")
+                .is_some_and(|label| !label.is_empty()));
+            assert!(
+                root.descendants()
+                    .filter(roxmltree::Node::is_element)
+                    .count()
+                    > 3
+            );
+        }
     }
 }

@@ -1,14 +1,51 @@
 use crate::{
-    coalition, evaluation::CoalitionEvaluator, EvaluationConfig, Explanation, Masker, Predict,
-    Result, ShapError,
+    coalition, evaluation::CoalitionEvaluator, EvaluationConfig, Explanation, FeatureMetadata,
+    Masker, OutputMetadata, Predict, Result, ShapError,
 };
-use ndarray::{Array2, Array3, Array4, ArrayView2, ArrayView4};
-#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+use ndarray::{Array2, Array3, Array4, ArrayView2, ArrayView4, Axis};
+#[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct InteractionExplanation {
     schema_version: u32,
     values: Array4<f64>,
     base_values: Array2<f64>,
     data: Array2<f64>,
+    feature_metadata: Option<FeatureMetadata>,
+    output_metadata: Option<OutputMetadata>,
+}
+#[derive(serde::Deserialize)]
+struct InteractionExplanationPayload {
+    schema_version: u32,
+    values: Array4<f64>,
+    base_values: Array2<f64>,
+    data: Array2<f64>,
+    feature_metadata: Option<FeatureMetadata>,
+    output_metadata: Option<OutputMetadata>,
+}
+impl<'de> serde::Deserialize<'de> for InteractionExplanation {
+    fn deserialize<D: serde::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        let payload = InteractionExplanationPayload::deserialize(deserializer)?;
+        if payload.schema_version != 1 {
+            return Err(serde::de::Error::custom(format!(
+                "unsupported interaction explanation schema version {}",
+                payload.schema_version
+            )));
+        }
+        let mut value = Self::new(payload.values, payload.base_values, payload.data)
+            .map_err(serde::de::Error::custom)?;
+        if let Some(metadata) = payload.feature_metadata {
+            value = value
+                .with_feature_metadata(metadata)
+                .map_err(serde::de::Error::custom)?;
+        }
+        if let Some(metadata) = payload.output_metadata {
+            value = value
+                .with_output_metadata(metadata)
+                .map_err(serde::de::Error::custom)?;
+        }
+        Ok(value)
+    }
 }
 impl InteractionExplanation {
     pub fn new(values: Array4<f64>, base_values: Array2<f64>, data: Array2<f64>) -> Result<Self> {
@@ -59,6 +96,8 @@ impl InteractionExplanation {
             values,
             base_values,
             data,
+            feature_metadata: None,
+            output_metadata: None,
         })
     }
     pub fn schema_version(&self) -> u32 {
@@ -71,12 +110,30 @@ impl InteractionExplanation {
                 self.schema_version
             )));
         }
-        Self::new(
+        let checked = Self::new(
             self.values.clone(),
             self.base_values.clone(),
             self.data.clone(),
-        )
-        .map(|_| ())
+        )?;
+        if let Some(metadata) = &self.feature_metadata {
+            metadata.validate()?;
+            if metadata.names.len() != checked.n_features() {
+                return Err(ShapError::DimensionMismatch {
+                    expected: format!("{} feature metadata entries", checked.n_features()),
+                    found: format!("{}", metadata.names.len()),
+                });
+            }
+        }
+        if let Some(metadata) = &self.output_metadata {
+            metadata.validate()?;
+            if metadata.names.len() != checked.n_outputs() {
+                return Err(ShapError::DimensionMismatch {
+                    expected: format!("{} output metadata entries", checked.n_outputs()),
+                    found: format!("{}", metadata.names.len()),
+                });
+            }
+        }
+        Ok(())
     }
     #[cfg(feature = "json-adapters")]
     pub fn to_json(&self) -> Result<String> {
@@ -110,6 +167,123 @@ impl InteractionExplanation {
     pub fn n_outputs(&self) -> usize {
         self.values.dim().3
     }
+    pub fn feature_metadata(&self) -> Option<&FeatureMetadata> {
+        self.feature_metadata.as_ref()
+    }
+    pub fn output_metadata(&self) -> Option<&OutputMetadata> {
+        self.output_metadata.as_ref()
+    }
+    pub fn feature_names(&self) -> Option<&[String]> {
+        self.feature_metadata.as_ref().map(|m| m.names.as_slice())
+    }
+    pub fn output_names(&self) -> Option<&[String]> {
+        self.output_metadata.as_ref().map(|m| m.names.as_slice())
+    }
+    pub fn with_feature_metadata(mut self, metadata: FeatureMetadata) -> Result<Self> {
+        metadata.validate()?;
+        if metadata.names.len() != self.n_features() {
+            return Err(ShapError::DimensionMismatch {
+                expected: format!("{} features", self.n_features()),
+                found: format!("{} metadata entries", metadata.names.len()),
+            });
+        }
+        self.feature_metadata = Some(metadata);
+        Ok(self)
+    }
+    pub fn with_output_metadata(mut self, metadata: OutputMetadata) -> Result<Self> {
+        metadata.validate()?;
+        if metadata.names.len() != self.n_outputs() {
+            return Err(ShapError::DimensionMismatch {
+                expected: format!("{} outputs", self.n_outputs()),
+                found: format!("{} metadata entries", metadata.names.len()),
+            });
+        }
+        self.output_metadata = Some(metadata);
+        Ok(self)
+    }
+    pub fn select_samples(&self, indices: &[usize]) -> Result<Self> {
+        self.validate()?;
+        validate_indices(indices, self.n_samples(), "sample")?;
+        let mut out = Self::new(
+            self.values.select(Axis(0), indices),
+            self.base_values.select(Axis(0), indices),
+            self.data.select(Axis(0), indices),
+        )?;
+        out.feature_metadata = self.feature_metadata.clone();
+        out.output_metadata = self.output_metadata.clone();
+        Ok(out)
+    }
+    pub fn select_features(&self, indices: &[usize]) -> Result<Self> {
+        self.validate()?;
+        validate_indices(indices, self.n_features(), "feature")?;
+        let values = self
+            .values
+            .select(Axis(1), indices)
+            .select(Axis(2), indices);
+        let mut out = Self::new(
+            values,
+            self.base_values.clone(),
+            self.data.select(Axis(1), indices),
+        )?;
+        out.output_metadata = self.output_metadata.clone();
+        out.feature_metadata = self
+            .feature_metadata
+            .as_ref()
+            .map(|m| subset_feature_metadata(m, indices));
+        Ok(out)
+    }
+    pub fn select_output(&self, output: usize) -> Result<Self> {
+        self.validate()?;
+        validate_indices(&[output], self.n_outputs(), "output")?;
+        let mut out = Self::new(
+            self.values.select(Axis(3), &[output]),
+            self.base_values.select(Axis(1), &[output]),
+            self.data.clone(),
+        )?;
+        out.feature_metadata = self.feature_metadata.clone();
+        out.output_metadata = self.output_metadata.as_ref().map(|m| OutputMetadata {
+            names: vec![m.names[output].clone()],
+            kinds: m.kinds.as_ref().map(|v| vec![v[output]]),
+        });
+        Ok(out)
+    }
+    pub fn concatenate(parts: &[Self]) -> Result<Self> {
+        if parts.is_empty() {
+            return Err(ShapError::EmptyData);
+        }
+        for part in parts {
+            part.validate()?;
+        }
+        let first = &parts[0];
+        if parts.iter().any(|p| {
+            p.n_features() != first.n_features()
+                || p.n_outputs() != first.n_outputs()
+                || p.feature_metadata != first.feature_metadata
+                || p.output_metadata != first.output_metadata
+        }) {
+            return Err(ShapError::DimensionMismatch {
+                expected: "interaction explanations with identical dimensions and metadata".into(),
+                found: "incompatible interaction explanation parts".into(),
+            });
+        }
+        let value_views = parts.iter().map(|p| p.values.view()).collect::<Vec<_>>();
+        let base_views = parts
+            .iter()
+            .map(|p| p.base_values.view())
+            .collect::<Vec<_>>();
+        let data_views = parts.iter().map(|p| p.data.view()).collect::<Vec<_>>();
+        let mut out = Self::new(
+            ndarray::concatenate(Axis(0), &value_views)
+                .map_err(|e| ShapError::Other(e.to_string()))?,
+            ndarray::concatenate(Axis(0), &base_views)
+                .map_err(|e| ShapError::Other(e.to_string()))?,
+            ndarray::concatenate(Axis(0), &data_views)
+                .map_err(|e| ShapError::Other(e.to_string()))?,
+        )?;
+        out.feature_metadata = first.feature_metadata.clone();
+        out.output_metadata = first.output_metadata.clone();
+        Ok(out)
+    }
     /// Returns diagonal interaction entries `(samples, features, outputs)`.
     pub fn main_effects(&self) -> Array3<f64> {
         Array3::from_shape_fn(
@@ -131,11 +305,18 @@ impl InteractionExplanation {
     /// Converts interaction row sums into the standard explanation type.
     pub fn to_explanation(&self) -> Result<Explanation> {
         self.validate()?;
-        Explanation::new(
+        let mut out = Explanation::new(
             self.total_effects(),
             self.base_values.clone(),
             self.data.clone(),
-        )
+        )?;
+        if let Some(metadata) = &self.feature_metadata {
+            out = out.with_feature_metadata(metadata.clone())?;
+        }
+        if let Some(metadata) = &self.output_metadata {
+            out = out.with_output_metadata(metadata.clone())?;
+        }
+        Ok(out)
     }
     pub fn reconstructed(&self) -> Array2<f64> {
         let mut out = self.base_values.clone();
@@ -149,6 +330,36 @@ impl InteractionExplanation {
             }
         }
         out
+    }
+}
+
+fn validate_indices(indices: &[usize], upper: usize, axis: &str) -> Result<()> {
+    if indices.is_empty() {
+        return Err(ShapError::EmptyData);
+    }
+    if let Some(&index) = indices.iter().find(|&&index| index >= upper) {
+        return Err(ShapError::InvalidConfiguration(format!(
+            "{axis} index {index} is out of bounds for length {upper}"
+        )));
+    }
+    Ok(())
+}
+
+fn subset_feature_metadata(metadata: &FeatureMetadata, indices: &[usize]) -> FeatureMetadata {
+    FeatureMetadata {
+        names: indices.iter().map(|&i| metadata.names[i].clone()).collect(),
+        display_names: metadata
+            .display_names
+            .as_ref()
+            .map(|v| indices.iter().map(|&i| v[i].clone()).collect()),
+        kinds: metadata
+            .kinds
+            .as_ref()
+            .map(|v| indices.iter().map(|&i| v[i]).collect()),
+        units: metadata
+            .units
+            .as_ref()
+            .map(|v| indices.iter().map(|&i| v[i].clone()).collect()),
     }
 }
 /// Exact pairwise Shapley interactions for any prediction model and masker.
@@ -201,6 +412,7 @@ impl<M: Predict, K: Masker> ExactInteractionExplainer<M, K> {
         let masks = coalition::all(m).collect::<Vec<_>>();
         let mut probe = CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let o = probe.evaluate(x.row(0), &[0])?[0].len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, m, o], "interaction explanation")?;
         let mut values = Array4::zeros((x.nrows(), m, m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         let factorial = (0..=m)
@@ -306,5 +518,48 @@ mod tests {
             assert_eq!(decoded, valid);
             assert_eq!(decoded.schema_version(), 1);
         }
+    }
+
+    #[test]
+    fn metadata_selection_concatenation_and_conversion_are_consistent() {
+        use crate::{FeatureMetadata, OutputMetadata};
+        let values = Array4::from_shape_fn((2, 2, 2, 2), |(n, i, j, o)| {
+            if i == j {
+                (n * 8 + i * 2 + o + 1) as f64
+            } else {
+                0.0
+            }
+        });
+        let explanation = InteractionExplanation::new(
+            values,
+            array![[0., 1.], [2., 3.]],
+            array![[10., 20.], [30., 40.]],
+        )
+        .unwrap()
+        .with_feature_metadata(FeatureMetadata::new(vec!["a".into(), "b".into()]).unwrap())
+        .unwrap()
+        .with_output_metadata(OutputMetadata::new(vec!["x".into(), "y".into()]).unwrap())
+        .unwrap();
+        let selected = explanation
+            .select_samples(&[1])
+            .unwrap()
+            .select_features(&[1])
+            .unwrap()
+            .select_output(0)
+            .unwrap();
+        assert_eq!(selected.values().dim(), (1, 1, 1, 1));
+        assert_eq!(selected.feature_names().unwrap(), &["b"]);
+        assert_eq!(
+            selected.to_explanation().unwrap().output_names().unwrap(),
+            &["x"]
+        );
+        let halves = [
+            explanation.select_samples(&[0]).unwrap(),
+            explanation.select_samples(&[1]).unwrap(),
+        ];
+        assert_eq!(
+            InteractionExplanation::concatenate(&halves).unwrap(),
+            explanation
+        );
     }
 }

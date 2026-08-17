@@ -76,9 +76,9 @@ impl<M: Predict, K: Masker> Explainer for ExactExplainer<M, K> {
         if x.nrows() == 0 {
             return Err(ShapError::EmptyData);
         }
-        if x.ncols() != m {
+        if x.ncols() != self.masker.n_input_features() {
             return Err(ShapError::DimensionMismatch {
-                expected: format!("{m} features"),
+                expected: format!("{} input features", self.masker.n_input_features()),
                 found: format!("{} features", x.ncols()),
             });
         }
@@ -90,6 +90,7 @@ impl<M: Predict, K: Masker> Explainer for ExactExplainer<M, K> {
         }
         let base = coalition_value(&self.model, &self.masker, x.row(0), &vec![false; m])?;
         let o = base.len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "exact explanation")?;
         let mut values = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         let factorial = (0..=m)
@@ -127,14 +128,14 @@ impl<M: Predict, K: Masker> Explainer for ExactExplainer<M, K> {
                 }
             }
         }
-        Explanation::new(values, bases, x.to_owned())
+        Explanation::new(values, bases, self.masker.attribution_data(x)?)
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{metrics::check_additivity, FnModel};
+    use crate::{metrics::check_additivity, FixedMasker, FnModel, GroupedMasker};
     use ndarray::{array, ArrayView2};
 
     #[test]
@@ -162,5 +163,21 @@ mod tests {
             .unwrap();
         assert!(explanation.base_values()[[0, 0]].abs() < 1e-12);
         assert!((explanation.values()[[0, 0, 0]] - 4f64.ln()).abs() < 1e-12);
+    }
+    #[test]
+    fn grouped_features_are_explained_as_single_coalition_players() {
+        let model =
+            FnModel::new(|x: ArrayView2<'_, f64>| Ok(x.sum_axis(Axis(1)).insert_axis(Axis(1))));
+        let masker = GroupedMasker::new(
+            FixedMasker::new(array![0., 0., 0.]).unwrap(),
+            vec![vec![0, 2], vec![1]],
+        )
+        .unwrap();
+        let explanation = ExactExplainer::from_masker(model, masker)
+            .explain(array![[2., 4., 8.]].view())
+            .unwrap();
+        assert_eq!(explanation.values().dim(), (1, 2, 1));
+        assert_eq!(explanation.values(), &array![[[10.], [4.]]]);
+        assert_eq!(explanation.data(), array![[5., 4.]].view());
     }
 }

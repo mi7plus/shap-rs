@@ -2,7 +2,7 @@ use crate::{
     Background, DifferentiablePredict, Explainer, Explanation, Result, ShapError,
     UncertainExplanation,
 };
-use ndarray::{Array2, Array3, ArrayView2, Axis};
+use ndarray::{Array2, Array3, ArrayView2, Axis, Slice};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 /// Expected Gradients (Gradient SHAP) with background interpolation and
 /// optional Gaussian local smoothing.
@@ -12,6 +12,7 @@ pub struct GradientExplainer<M> {
     nsamples: usize,
     seed: u64,
     local_smoothing: f64,
+    batch_size: usize,
 }
 impl<M> GradientExplainer<M> {
     pub fn new(model: M, background: Background) -> Self {
@@ -21,6 +22,7 @@ impl<M> GradientExplainer<M> {
             nsamples: 256,
             seed: 0,
             local_smoothing: 0.0,
+            batch_size: 256,
         }
     }
     pub fn with_nsamples(mut self, n: usize) -> Self {
@@ -33,6 +35,11 @@ impl<M> GradientExplainer<M> {
     }
     pub fn with_local_smoothing(mut self, s: f64) -> Self {
         self.local_smoothing = s;
+        self
+    }
+    /// Limits gradient rows submitted to the autodiff backend in one call.
+    pub fn with_batch_size(mut self, batch_size: usize) -> Self {
+        self.batch_size = batch_size;
         self
     }
 }
@@ -58,6 +65,7 @@ impl<M: DifferentiablePredict> GradientExplainer<M> {
                     nsamples: self.nsamples,
                     seed: self.seed.wrapping_add(repeat as u64),
                     local_smoothing: self.local_smoothing,
+                    batch_size: self.batch_size,
                 }
                 .explain(x)?,
             );
@@ -95,9 +103,13 @@ impl<M: DifferentiablePredict> Explainer for GradientExplainer<M> {
                 found: format!("{}", x.ncols()),
             });
         }
-        if self.nsamples == 0 || !self.local_smoothing.is_finite() || self.local_smoothing < 0. {
+        if self.nsamples == 0
+            || self.batch_size == 0
+            || !self.local_smoothing.is_finite()
+            || self.local_smoothing < 0.
+        {
             return Err(ShapError::InvalidConfiguration(
-                "nsamples must be positive and local smoothing non-negative".into(),
+                "nsamples and batch size must be positive and local smoothing non-negative".into(),
             ));
         }
         let prediction = self.model.predict(self.background.data())?;
@@ -109,6 +121,8 @@ impl<M: DifferentiablePredict> Explainer for GradientExplainer<M> {
         }
         let base = prediction.mean_axis(Axis(0)).unwrap();
         let o = base.len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "gradient explanation")?;
+        crate::error::checked_f64_shape(&[self.nsamples, m], "gradient sampling batch")?;
         let bases = Array2::from_shape_fn((x.nrows(), o), |(_, k)| base[k]);
         let std = feature_std(&self.background);
         let mut values = Array3::zeros((x.nrows(), m, o));
@@ -130,24 +144,29 @@ impl<M: DifferentiablePredict> Explainer for GradientExplainer<M> {
                     points[[s, j]] = self.background.data()[[b, j]] + alpha * delta
                 }
             }
-            let gradients = self.model.gradients(points.view())?;
-            if gradients.dim() != (self.nsamples, m, o) {
-                return Err(ShapError::DimensionMismatch {
-                    expected: format!("({}, {m}, {o}) gradients", self.nsamples),
-                    found: format!("{:?}", gradients.dim()),
-                });
-            }
-            if gradients.iter().any(|v| !v.is_finite()) {
-                return Err(ShapError::ModelError(
-                    "gradient contains a non-finite value".into(),
-                ));
-            }
-            for j in 0..m {
-                for k in 0..o {
-                    values[[n, j, k]] = (0..self.nsamples)
-                        .map(|s| gradients[[s, j, k]] * deltas[[s, j]])
-                        .sum::<f64>()
-                        / self.nsamples as f64
+            for start in (0..self.nsamples).step_by(self.batch_size) {
+                let end = start.saturating_add(self.batch_size).min(self.nsamples);
+                let gradients = self
+                    .model
+                    .gradients(points.slice_axis(Axis(0), Slice::from(start..end)))?;
+                if gradients.dim() != (end - start, m, o) {
+                    return Err(ShapError::DimensionMismatch {
+                        expected: format!("({}, {m}, {o}) gradients", end - start),
+                        found: format!("{:?}", gradients.dim()),
+                    });
+                }
+                if gradients.iter().any(|v| !v.is_finite()) {
+                    return Err(ShapError::ModelError(
+                        "gradient contains a non-finite value".into(),
+                    ));
+                }
+                for j in 0..m {
+                    for k in 0..o {
+                        values[[n, j, k]] += (start..end)
+                            .map(|sample| gradients[[sample - start, j, k]] * deltas[[sample, j]])
+                            .sum::<f64>()
+                            / self.nsamples as f64
+                    }
                 }
             }
         }
@@ -201,6 +220,7 @@ mod tests {
     fn expected_gradients_is_exact_for_linear_models() {
         let e = GradientExplainer::new(Linear, Background::new(array![[0., 0.]]).unwrap())
             .with_nsamples(32)
+            .with_batch_size(3)
             .explain(array![[3., 4.]].view())
             .unwrap();
         assert!((e.values()[[0, 0, 0]] - 6.).abs() < 1e-12);

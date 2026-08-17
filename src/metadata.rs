@@ -21,11 +21,32 @@ pub enum OutputKind {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(try_from = "FeatureMetadataPayload")]
 pub struct FeatureMetadata {
     pub names: Vec<String>,
     pub display_names: Option<Vec<String>>,
     pub kinds: Option<Vec<FeatureKind>>,
     pub units: Option<Vec<Option<String>>>,
+}
+#[derive(Deserialize)]
+struct FeatureMetadataPayload {
+    names: Vec<String>,
+    display_names: Option<Vec<String>>,
+    kinds: Option<Vec<FeatureKind>>,
+    units: Option<Vec<Option<String>>>,
+}
+impl TryFrom<FeatureMetadataPayload> for FeatureMetadata {
+    type Error = ShapError;
+    fn try_from(payload: FeatureMetadataPayload) -> Result<Self> {
+        let metadata = Self {
+            names: payload.names,
+            display_names: payload.display_names,
+            kinds: payload.kinds,
+            units: payload.units,
+        };
+        metadata.validate()?;
+        Ok(metadata)
+    }
 }
 impl FeatureMetadata {
     pub fn new(names: Vec<String>) -> Result<Self> {
@@ -123,9 +144,26 @@ impl FeatureMetadata {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(try_from = "OutputMetadataPayload")]
 pub struct OutputMetadata {
     pub names: Vec<String>,
     pub kinds: Option<Vec<OutputKind>>,
+}
+#[derive(Deserialize)]
+struct OutputMetadataPayload {
+    names: Vec<String>,
+    kinds: Option<Vec<OutputKind>>,
+}
+impl TryFrom<OutputMetadataPayload> for OutputMetadata {
+    type Error = ShapError;
+    fn try_from(payload: OutputMetadataPayload) -> Result<Self> {
+        let metadata = Self {
+            names: payload.names,
+            kinds: payload.kinds,
+        };
+        metadata.validate()?;
+        Ok(metadata)
+    }
 }
 impl OutputMetadata {
     pub fn new(names: Vec<String>) -> Result<Self> {

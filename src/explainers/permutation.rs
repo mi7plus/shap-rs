@@ -63,9 +63,9 @@ impl<M: Predict, K: Masker> Explainer for PermutationExplainer<M, K> {
         if x.nrows() == 0 {
             return Err(ShapError::EmptyData);
         }
-        if x.ncols() != m {
+        if x.ncols() != self.masker.n_input_features() {
             return Err(ShapError::DimensionMismatch {
-                expected: format!("{m} features"),
+                expected: format!("{} input features", self.masker.n_input_features()),
                 found: format!("{}", x.ncols()),
             });
         }
@@ -82,6 +82,10 @@ impl<M: Predict, K: Masker> Explainer for PermutationExplainer<M, K> {
         let mut probe_evaluator =
             CoalitionEvaluator::new(&self.model, &self.masker, self.evaluation)?;
         let o = probe_evaluator.evaluate(x.row(0), &[0])?[0].len();
+        crate::error::checked_f64_shape(&[x.nrows(), m, o], "permutation explanation")?;
+        self.n_permutations.checked_mul(m).ok_or_else(|| {
+            ShapError::InvalidConfiguration("permutation step count overflowed".into())
+        })?;
         let mut vals = Array3::zeros((x.nrows(), m, o));
         let mut bases = Array2::zeros((x.nrows(), o));
         for i in 0..x.nrows() {
@@ -122,7 +126,7 @@ impl<M: Predict, K: Masker> Explainer for PermutationExplainer<M, K> {
                 }
             }
         }
-        Explanation::new(vals, bases, x.to_owned())
+        Explanation::new(vals, bases, self.masker.attribution_data(x)?)
     }
 }
 

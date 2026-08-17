@@ -16,7 +16,7 @@ pub trait ParallelExplainerExt: Explainer + Sync {
         let parts = starts
             .into_par_iter()
             .map(|start| {
-                let end = (start + chunk_size).min(x.nrows());
+                let end = start.saturating_add(chunk_size).min(x.nrows());
                 self.explain(x.slice_axis(Axis(0), Slice::from(start..end)))
             })
             .collect::<Result<Vec<_>>>()?;

@@ -1,6 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![forbid(unsafe_code)]
+pub mod analysis;
 pub mod background;
+#[cfg(feature = "burn-adapter")]
+pub mod burn_adapter;
 pub mod coalition;
 pub mod error;
 pub mod evaluation;
@@ -21,17 +24,22 @@ pub use background::Background;
 pub use error::{Result, ShapError};
 pub use evaluation::EvaluationConfig;
 pub use explainer::{Explainer, ExplainerExt, MetadataExplainer};
-pub use explanation::{Explanation, UncertainExplanation};
+pub use explanation::{AttributionSemantics, Explanation, UncertainExplanation};
 pub use link::Link;
-pub use masker::{FixedMasker, FnMasker, ImageMasker, IndependentMasker, Masker, TextMasker};
+pub use masker::{
+    ConditionalTabularMasker, FixedMasker, FnMasker, GroupedMasker, ImageMasker, IndependentMasker,
+    Masker, TextMasker,
+};
 pub use metadata::{FeatureKind, FeatureMetadata, OutputKind, OutputMetadata};
 pub use model::{
     AcceleratedPredict, DeepAttribution, DeviceModel, DifferentiablePredict, ExecutionDevice,
-    FnModel, Predict,
+    FnAcceleratedModel, FnModel, Predict,
 };
 #[cfg(feature = "parallel")]
 pub use parallel::ParallelExplainerExt;
-pub use tree::{MissingBranch, Node, Tree, TreeArrays, TreeEnsemble};
+pub use tree::{
+    MissingBranch, MissingValuePolicy, Node, SplitComparison, Tree, TreeArrays, TreeEnsemble,
+};
 
 /// Compatibility helper for scalar-output Kernel SHAP.
 pub fn explain_sample<F>(

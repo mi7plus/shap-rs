@@ -4,6 +4,7 @@ use std::collections::{HashMap, HashSet, VecDeque};
 
 /// Shared limits for model-agnostic explainer evaluation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(try_from = "EvaluationConfigPayload")]
 pub struct EvaluationConfig {
     /// Maximum coalitions combined into one model call.
     pub coalition_batch_size: usize,
@@ -11,6 +12,23 @@ pub struct EvaluationConfig {
     pub cache_capacity: usize,
     /// Optional hard limit on total model rows evaluated per sample.
     pub max_model_rows: Option<usize>,
+}
+#[derive(serde::Deserialize)]
+struct EvaluationConfigPayload {
+    coalition_batch_size: usize,
+    cache_capacity: usize,
+    max_model_rows: Option<usize>,
+}
+impl TryFrom<EvaluationConfigPayload> for EvaluationConfig {
+    type Error = ShapError;
+    fn try_from(payload: EvaluationConfigPayload) -> Result<Self> {
+        Self {
+            coalition_batch_size: payload.coalition_batch_size,
+            cache_capacity: payload.cache_capacity,
+            max_model_rows: payload.max_model_rows,
+        }
+        .validate()
+    }
 }
 impl Default for EvaluationConfig {
     fn default() -> Self {
@@ -126,7 +144,11 @@ impl<'a, M: Predict, K: Masker> CoalitionEvaluator<'a, M, K> {
                 "model row evaluation limit exceeded".into(),
             ));
         }
-        let mut batch = Array2::zeros((rows, self.masker.n_features()));
+        crate::error::checked_f64_shape(
+            &[rows, self.masker.n_input_features()],
+            "masked coalition batch",
+        )?;
+        let mut batch = Array2::zeros((rows, self.masker.n_input_features()));
         let mut offset = 0;
         for part in &masked {
             let end = offset + part.nrows();
@@ -155,7 +177,7 @@ impl<'a, M: Predict, K: Masker> CoalitionEvaluator<'a, M, K> {
         }
         self.outputs = Some(predictions.ncols());
         self.rows_evaluated += rows;
-        while self.cache.len() + masks.len() > self.config.cache_capacity {
+        while masks.len() > self.config.cache_capacity.saturating_sub(self.cache.len()) {
             let Some(key) = self.cache_order.pop_front() else {
                 break;
             };

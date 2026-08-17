@@ -40,6 +40,13 @@ feature and output metadata is attached automatically to every result.
 
 - `json-adapters`: JSON explanation serialization plus XGBoost and LightGBM import
 - `parallel`: Rayon-backed parallel execution over sample batches
+- `burn-adapter`: Burn 0.15 autodiff integration via `burn_adapter::BurnModel`
+
+The Burn adapter is optional to preserve the lightweight default build. It
+accepts a tensor forward closure and implements both `Predict` and
+`DifferentiablePredict`, so it can drive `GradientExplainer` directly. Burn
+0.15 is intentionally pinned because newer Burn releases or their dependencies require a newer Rust toolchain,
+while `shap-rs` supports Rust 1.80.
 
 ## Visualization
 
@@ -61,7 +68,16 @@ assert!(svg.starts_with("<svg"));
 ```
 
 See [ARCHITECTURE.md](ARCHITECTURE.md) for extension points and invariants and
-[ROADMAP.md](ROADMAP.md) for the living implementation and release tracker.
+[NUMERICS.md](NUMERICS.md) for comparison tolerances. [ROADMAP.md](ROADMAP.md)
+is the living implementation and release tracker.
+Local Criterion methodology and the TreeSHAP parallel baseline are recorded in
+[BENCHMARKS.md](BENCHMARKS.md).
+Causal assumptions and serialized attribution semantics are documented in
+[CAUSAL.md](CAUSAL.md).
+Burn gradient/deep operation and input contracts are documented in
+[NEURAL.md](NEURAL.md).
+The reviewed public surface and pre-1.0 compatibility policy are recorded in
+[API_STABILITY.md](API_STABILITY.md).
 
 ## Native TreeSHAP
 
@@ -85,6 +101,49 @@ assert!((explanation.reconstructed()[[0, 0]] - 5.0).abs() < 1e-12);
 Node `cover` values encode the training mass reaching each branch. They are
 required for path-dependent TreeSHAP expectations when a split feature is
 absent. `NaN` values follow the node's configured missing branch.
+
+For XGBoost DART recursive dumps, use
+`from_xgboost_json_with_tree_weights` with the full model JSON's `weight_drop`
+array; ordinary boosted-tree dumps use `from_xgboost_json`. Per-sample raw base
+margins are supported by `TreeEnsemble::predict_with_base_margin` and
+`TreeExplainer::explain_with_base_margin` and replace, rather than add to, the
+model's fixed base offset.
+
+`from_xgboost_model_json` imports XGBoost's full columnar saved-model schema,
+including `tree_info` output groups and DART `weight_drop`. It accepts explicit
+raw-margin base values so objective-specific base-score transforms remain
+unambiguous. Full-schema categorical XGBoost splits are currently rejected;
+numerical `gbtree` and `dart` models are supported.
+
+`TreeEnsemble::output_groups` exposes optional per-tree output metadata.
+Full-model XGBoost imports populate it from `tree_info`; recursive XGBoost and
+LightGBM dumps retain their documented inferred ordering.
+
+Imported trees retain their split semantics: XGBoost numeric splits use strict
+`<`, LightGBM numeric splits use `<=`, and LightGBM categorical splits use
+integer category membership. LightGBM `NaN`, `Zero`, and `None` missing-value
+policies are preserved. Native callers can construct these explicitly with
+`Node::NumericalSplit`, `Node::CategoricalSplit`, `SplitComparison`, and
+`MissingValuePolicy`; the legacy `Node::Split` remains a `<=`/NaN split.
+
+`TreeExplainer` computes polynomial tree-path-dependent values from node
+covers. `InterventionalTreeExplainer` instead integrates absent features over
+an explicit `Background`; it is exact and currently limited to small feature
+sets because it enumerates coalitions.
+
+The interventional explainer also provides `explain_probability` (sigmoid for
+one output, softmax for multiple outputs) and `explain_binary_log_loss` with
+per-sample targets. These explain the transformed function exactly; raw-margin
+output remains the default for both tree explainers.
+
+Large hierarchical Owen explanations can opt into deterministic Monte Carlo
+fallback with `HierarchicalPartitionExplainer::with_approximate_samples` when
+the exact hierarchy permutation count exceeds `max_permutations`.
+
+`ConditionalTabularMasker` selects nearest background rows using exact-match
+distance for configured categorical columns and variance-scaled distance for
+numeric columns. Conditioning uses only coalition-present features; with no
+features present it retains the complete background distribution.
 
 ## Quickstart
 ```rust

@@ -28,6 +28,7 @@ impl<'a> TreeInteractionExplainer<'a> {
     pub fn explain(&self, x: ArrayView2<'_, f64>) -> Result<TreeInteractionExplanation> {
         let m = self.model.n_features();
         let o = self.model.n_outputs();
+        crate::error::checked_f64_shape(&[x.nrows(), m, m, o], "tree interaction explanation")?;
         if x.nrows() == 0 {
             return Err(ShapError::EmptyData);
         }
@@ -50,10 +51,7 @@ impl<'a> TreeInteractionExplainer<'a> {
                 let mut used = tree
                     .nodes()
                     .iter()
-                    .filter_map(|node| match node {
-                        Node::Split { feature, .. } => Some(*feature),
-                        Node::Leaf { .. } => None,
-                    })
+                    .filter_map(Node::split_feature)
                     .collect::<Vec<_>>();
                 used.sort_unstable();
                 used.dedup();

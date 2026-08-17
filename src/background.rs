@@ -20,12 +20,24 @@ use crate::error::{Result, ShapError};
 /// ```text
 /// (n_background_samples, n_features)
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct Background {
     data: Array2<f64>,
 }
 
 impl Background {
+    /// Revalidates a background after deserialization.
+    pub fn validate(&self) -> Result<()> {
+        if self.data.nrows() == 0 {
+            return Err(ShapError::EmptyBackground);
+        }
+        if self.data.ncols() == 0 {
+            return Err(ShapError::InvalidConfiguration(
+                "background must contain at least one feature".into(),
+            ));
+        }
+        Ok(())
+    }
     /// Creates a background dataset from an owned array.
     ///
     /// # Errors
@@ -35,6 +47,11 @@ impl Background {
     pub fn new(data: Array2<f64>) -> Result<Self> {
         if data.nrows() == 0 {
             return Err(ShapError::EmptyBackground);
+        }
+        if data.ncols() == 0 {
+            return Err(ShapError::InvalidConfiguration(
+                "background must contain at least one feature".to_string(),
+            ));
         }
 
         Ok(Self { data })
@@ -67,13 +84,18 @@ impl Background {
     /// Returns [`ShapError::InvalidConfiguration`] if `index` is outside
     /// the background dataset.
     pub fn row(&self, index: usize) -> Result<ArrayView1<'_, f64>> {
+        self.validate()?;
+        if index >= self.n_samples() {
+            return Err(ShapError::InvalidConfiguration(format!(
+                "background row index {index} is out of bounds for {} rows",
+                self.n_samples()
+            )));
+        }
         self.data
             .row(index)
             .into_shape_with_order(self.n_features())
             .map_err(|_| {
-                ShapError::InvalidConfiguration(format!(
-                    "unable to access background row {index}"
-                ))
+                ShapError::InvalidConfiguration(format!("unable to access background row {index}"))
             })
     }
 
@@ -84,11 +106,8 @@ impl Background {
     ///
     /// If `n_samples` is greater than or equal to the current number of
     /// observations, a clone of the complete background dataset is returned.
-    pub fn sample<R: Rng + ?Sized>(
-        &self,
-        n_samples: usize,
-        rng: &mut R,
-    ) -> Result<Self> {
+    pub fn sample<R: Rng + ?Sized>(&self, n_samples: usize, rng: &mut R) -> Result<Self> {
+        self.validate()?;
         if n_samples == 0 {
             return Err(ShapError::InvalidConfiguration(
                 "background sample size must be greater than zero".to_string(),
@@ -112,6 +131,7 @@ impl Background {
     ///
     /// This method preserves the order of `indices`.
     pub fn select(&self, indices: &[usize]) -> Result<Self> {
+        self.validate()?;
         if indices.is_empty() {
             return Err(ShapError::EmptyBackground);
         }
@@ -130,19 +150,14 @@ impl Background {
 }
 
 /// Strategy used to reduce a large background dataset.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, serde::Serialize, serde::Deserialize)]
 pub enum BackgroundSampling {
     /// Use every background observation.
+    #[default]
     All,
 
     /// Randomly sample a fixed number of observations.
     Random(usize),
-}
-
-impl Default for BackgroundSampling {
-    fn default() -> Self {
-        Self::All
-    }
 }
 
 impl BackgroundSampling {
@@ -163,16 +178,12 @@ impl BackgroundSampling {
 mod tests {
     use super::*;
     use ndarray::array;
-    use rand::SeedableRng;
     use rand::rngs::StdRng;
+    use rand::SeedableRng;
 
     #[test]
     fn creates_background() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-            [5.0, 6.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0],];
 
         let background = Background::new(data).unwrap();
 
@@ -186,18 +197,12 @@ mod tests {
 
         let result = Background::new(data);
 
-        assert!(matches!(
-            result,
-            Err(ShapError::EmptyBackground)
-        ));
+        assert!(matches!(result, Err(ShapError::EmptyBackground)));
     }
 
     #[test]
     fn exposes_data() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data.clone()).unwrap();
 
@@ -206,10 +211,7 @@ mod tests {
 
     #[test]
     fn accesses_row() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data).unwrap();
 
@@ -220,13 +222,7 @@ mod tests {
 
     #[test]
     fn random_sampling_is_reproducible() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-            [5.0, 6.0],
-            [7.0, 8.0],
-            [9.0, 10.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0], [9.0, 10.0],];
 
         let background = Background::new(data).unwrap();
 
@@ -241,10 +237,7 @@ mod tests {
 
     #[test]
     fn sampling_all_rows_returns_clone() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data.clone()).unwrap();
 
@@ -257,66 +250,40 @@ mod tests {
 
     #[test]
     fn selects_rows() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-            [5.0, 6.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0],];
 
         let background = Background::new(data).unwrap();
 
         let selected = background.select(&[2, 0]).unwrap();
 
-        assert_eq!(
-            selected.data(),
-            array![
-                [5.0, 6.0],
-                [1.0, 2.0],
-            ]
-            .view()
-        );
+        assert_eq!(selected.data(), array![[5.0, 6.0], [1.0, 2.0],].view());
     }
 
     #[test]
     fn rejects_empty_selection() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data).unwrap();
 
         let result = background.select(&[]);
 
-        assert!(matches!(
-            result,
-            Err(ShapError::EmptyBackground)
-        ));
+        assert!(matches!(result, Err(ShapError::EmptyBackground)));
     }
 
     #[test]
     fn rejects_invalid_selection_index() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data).unwrap();
 
         let result = background.select(&[5]);
 
-        assert!(matches!(
-            result,
-            Err(ShapError::InvalidConfiguration(_))
-        ));
+        assert!(matches!(result, Err(ShapError::InvalidConfiguration(_))));
     }
 
     #[test]
     fn sampling_strategy_all() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0],];
 
         let background = Background::new(data.clone()).unwrap();
 
@@ -331,12 +298,7 @@ mod tests {
 
     #[test]
     fn sampling_strategy_random() {
-        let data = array![
-            [1.0, 2.0],
-            [3.0, 4.0],
-            [5.0, 6.0],
-            [7.0, 8.0],
-        ];
+        let data = array![[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0],];
 
         let background = Background::new(data).unwrap();
 

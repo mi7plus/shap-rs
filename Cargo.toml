@@ -2,13 +2,26 @@
 name = "shap-rs"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.80"
+description = "Native Rust implementations of model-agnostic, linear, and TreeSHAP explainers"
+license = "MIT"
+readme = "README.md"
+documentation = "https://docs.rs/shap-rs"
+keywords = ["shap", "explainable-ai", "machine-learning", "shapley"]
+categories = ["algorithms", "science"]
 
 [lib]
 name = "shap_rs"
 path = "src/lib.rs"
 
 [dependencies]
-ndarray = "0.16"
-nalgebra = "0.33"
+ndarray = { version = "0.16", features = ["serde"] }
 rand = "0.8"
-rayon = "1.10"
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", optional = true }
+rayon = { version = "1.10", optional = true }
+
+[features]
+default = []
+json-adapters = ["dep:serde_json"]
+parallel = ["dep:rayon"]

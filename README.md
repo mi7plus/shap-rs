@@ -1,1 +1,1 @@
-# treeshap-rs
+# shap-rs

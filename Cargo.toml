@@ -8,6 +8,7 @@ name = "shap_rs"
 path = "src/lib.rs"
 
 [dependencies]
+ndarray = "0.16"
 nalgebra = "0.33"
 rand = "0.8"
 rayon = "1.10"

@@ -13,14 +13,22 @@ one or many outputs, and every explainer returns the same `Explanation` type.
 - Background-distribution masking (not just a single mean replacement)
 - Exact local accuracy for exact and linear explainers
 - Deterministic sampling with configurable seeds and antithetic permutation pairs
+- Opt-in bounded cross-sample caching for deterministic prediction models
+- Incremental out-of-core background masking and evaluation
+- Native CSR inputs, backgrounds, coalition batches, and permutation SHAP
+- Owned coalition-batch fast path for single-transfer device prediction
 - Additivity checks and plot-ready bar, force, waterfall, and beeswarm data
 - No unsafe code
+
+See [`SPARSE.md`](SPARSE.md) for the native sparse model boundary and its
+memory semantics.
 
 ## Explainers
 
 - Automatic Exact/Kernel selection for arbitrary prediction models
 - Exact interventional SHAP
 - Kernel SHAP with constrained weighted least squares
+- Selectable normal-equations or condition-preserving Householder QR Kernel solver
 - Permutation and Sampling SHAP, including Monte-Carlo standard errors
 - Independent and covariance-aware Linear SHAP
 - Flat and hierarchical Partition SHAP/Owen values
@@ -32,7 +40,9 @@ one or many outputs, and every explainer returns the same `Explanation` type.
 
 All model-agnostic explainers accept custom `Masker` implementations. Built-in
 maskers cover background-distribution replacement, fixed references, numeric
-text tokens, flattened images, and closure-defined conditional sampling.
+text tokens (including tokenizer pieces, reconstruction, and grouping),
+flattened images, segment/superpixel image coalitions with fixed
+or blur baselines, callback-based inpainting, and conditional sampling.
 Any explainer can be wrapped with `ExplainerExt::with_metadata()` so validated
 feature and output metadata is attached automatically to every result.
 

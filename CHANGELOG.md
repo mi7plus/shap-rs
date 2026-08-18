@@ -48,6 +48,21 @@ All notable changes to this project are documented here. The format follows
   masking modes.
 - Concrete affine Burn `DeepAttribution` adapter with documented operation,
   input, state, and structured-output boundaries.
+- Tokenizer-aware text masking with piece reconstruction, special-token
+  policies, and grouped subword coalitions.
+- Segment/superpixel image masking with fixed and blur baselines plus an
+  inpainting callback adapter.
+- Incremental out-of-core masked-background evaluation.
+- Bounded row-level `CachedModel` prediction reuse across samples and explainer
+  calls.
+- A condition-preserving Householder QR backend for Kernel SHAP weighted least
+  squares.
+- Executable CPU/device numerical-equivalence and repeated-run determinism
+  checks.
+- Owned coalition-batch prediction paths for single-transfer accelerated model
+  adapters.
+- Native validated CSR matrices, sparse prediction and masking contracts, and
+  sparse permutation SHAP without dense coalition materialization.
 
 ## [0.1.0] - 2026-08-17
 

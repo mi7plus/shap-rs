@@ -19,7 +19,12 @@ representation internals.
 ## Stability boundaries
 
 - `Predict`, `Explainer`, `Masker`, `DifferentiablePredict`, and
-  `DeepAttribution` are the core integration contracts.
+  `DeepAttribution` are the core dense integration contracts. Their owned-batch
+  and streaming methods have default implementations so existing adapters do
+  not need to implement transfer or out-of-core optimizations.
+- `SparseMatrix`, `SparsePredict`, and `SparseIndependentMasker` are the native
+  CSR integration boundary. CSR representation fields remain private and all
+  construction and deserialization paths validate canonical row structure.
 - `Explanation`, its axis ordering, metadata, and attribution semantics are the
   interchange contract. Serialized payloads carry an explicit schema version.
 - Tree adapter input schemas track upstream exporters and may add support for

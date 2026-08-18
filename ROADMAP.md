@@ -3,9 +3,10 @@
 This file is the source of truth for remaining work. Check an item only after
 its implementation, documentation, and proportionate tests are complete.
 
-Last verified baseline: 113 unit tests, 9 integration/property tests, 5
-doctests, all features, strict Clippy, warning-free rustdoc, Rust 1.80, and
-`cargo package` verification pass.
+Latest local Windows verification (Rust 1.96): 135 unit tests, 9
+integration/property tests, 5 doctests, all features, feature-isolation builds,
+strict Clippy, and warning-free rustdoc. CI remains responsible for the Rust
+1.80 MSRV and other supported platforms.
 
 ## Implemented foundation
 
@@ -65,23 +66,27 @@ doctests, all features, strict Clippy, warning-free rustdoc, Rust 1.80, and
 - [x] Add per-tree output-group metadata instead of relying on round-robin tree
       ordering assumptions in imported multiclass dumps.
 - [ ] Add a SmartCore adapter when SmartCore exposes stable public tree-export
-      data. Its current model internals are private; `TreeArrays` is the safe
-      interoperability boundary until then.
-- [ ] Consider adapters for additional Rust tree libraries after their public
-      tree/cover/missing-routing APIs are verified.
+      data. SmartCore 0.5.5 still keeps its base-tree module and ensemble tree
+      storage crate-private; `TreeArrays` is the safe interoperability boundary
+      until then.
+- [x] Consider adapters for additional Rust tree libraries after their public
+      tree/cover/missing-routing APIs are verified. Linfa Trees 0.8 exposes
+      topology, splits, and leaf predictions but not node covers or missing
+      routing, so it cannot preserve TreeSHAP semantics; `TreeArrays` remains
+      the interoperability boundary.
 
 ## P1 — scalable model-agnostic explanations
 
-- [ ] Add sparse input/background support without densifying every coalition.
+- [x] Add sparse input/background support without densifying every coalition.
 - [x] Add grouped-feature masking where one coalition bit controls multiple
       original columns while explanations retain group and source metadata.
 - [x] Add native categorical/tabular maskers and conditional samplers.
 - [x] Add approximate hierarchical Owen sampling for hierarchies whose exact
       hierarchy-consistent permutation count exceeds the configured limit.
-- [ ] Add streaming/out-of-core background evaluation.
-- [ ] Add reusable cross-sample model-evaluation caching where model and masker
+- [x] Add streaming/out-of-core background evaluation.
+- [x] Add reusable cross-sample model-evaluation caching where model and masker
       semantics make it safe.
-- [ ] Evaluate a numerically stronger optional linear algebra backend for large
+- [x] Evaluate a numerically stronger optional linear algebra backend for large
       Kernel SHAP weighted least-squares systems.
 
 ## P1 — neural and differentiable integrations
@@ -97,9 +102,9 @@ doctests, all features, strict Clippy, warning-free rustdoc, Rust 1.80, and
 
 ## P2 — structured and causal masking
 
-- [ ] Add tokenizer-aware text masking with token/string reconstruction,
+- [x] Add tokenizer-aware text masking with token/string reconstruction,
       special-token policies, and token grouping.
-- [ ] Add image superpixel/segment masking, blur baselines, and optional
+- [x] Add image superpixel/segment masking, blur baselines, and optional
       inpainting adapters.
 - [x] Add partition maskers that preserve structured feature groups.
 - [x] Add concrete observational, interventional, and conditional causal
@@ -112,8 +117,8 @@ doctests, all features, strict Clippy, warning-free rustdoc, Rust 1.80, and
 
 - [x] Implement concrete accelerated prediction adapters. `ExecutionDevice`
       and `AcceleratedPredict` currently define the contract only.
-- [ ] Add GPU-aware coalition batching and transfer minimization.
-- [ ] Establish CPU/GPU numerical-equivalence tolerances and determinism rules.
+- [x] Add GPU-aware coalition batching and transfer minimization.
+- [x] Establish CPU/GPU numerical-equivalence tolerances and determinism rules.
 - [x] Benchmark SIMD and parallel TreeSHAP execution before adding complexity.
 
 ## P2 — explanation analysis and visualization

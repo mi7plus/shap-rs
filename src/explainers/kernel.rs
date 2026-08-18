@@ -5,6 +5,18 @@ use crate::{
 use ndarray::{Array2, Array3, ArrayView2};
 use rand::{rngs::StdRng, Rng, SeedableRng};
 use std::collections::BTreeSet;
+
+/// Linear solver used by Kernel SHAP's constrained weighted least squares.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum KernelSolver {
+    /// Fast, allocation-light solve of the normal equations.
+    #[default]
+    NormalEquations,
+    /// Householder QR on the weighted design matrix. This uses more memory but
+    /// avoids squaring the design matrix's condition number.
+    HouseholderQr,
+}
+
 /// Kernel SHAP with Shapley-kernel weighted least squares and an exact
 /// efficiency constraint. Sampled coalitions are complement-paired.
 pub struct KernelExplainer<M, K = IndependentMasker> {
@@ -14,6 +26,7 @@ pub struct KernelExplainer<M, K = IndependentMasker> {
     seed: u64,
     exact_threshold: usize,
     ridge: f64,
+    solver: KernelSolver,
     evaluation: EvaluationConfig,
     link: Link,
 }
@@ -31,6 +44,7 @@ impl<M, K> KernelExplainer<M, K> {
             seed: 0,
             exact_threshold: 12,
             ridge: 1e-10,
+            solver: KernelSolver::NormalEquations,
             evaluation: EvaluationConfig::default(),
             link: Link::Identity,
         }
@@ -49,6 +63,10 @@ impl<M, K> KernelExplainer<M, K> {
     }
     pub fn with_ridge(mut self, ridge: f64) -> Self {
         self.ridge = ridge;
+        self
+    }
+    pub fn with_solver(mut self, solver: KernelSolver) -> Self {
+        self.solver = solver;
         self
     }
     pub fn with_evaluation_config(mut self, config: EvaluationConfig) -> Self {
@@ -162,8 +180,17 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
             let p = m - 1;
             crate::error::checked_f64_shape(&[p, p], "Kernel SHAP linear system")?;
             crate::error::checked_f64_shape(&[p, o], "Kernel SHAP right-hand side")?;
+            let qr_rows = masks.len().checked_add(p).ok_or_else(|| {
+                ShapError::InvalidConfiguration("Kernel SHAP QR row count overflow".into())
+            })?;
+            if self.solver == KernelSolver::HouseholderQr {
+                crate::error::checked_f64_shape(&[qr_rows, p], "Kernel SHAP QR design")?;
+                crate::error::checked_f64_shape(&[qr_rows, o], "Kernel SHAP QR response")?;
+            }
             let mut a = vec![vec![0.; p]; p];
             let mut b = vec![vec![0.; o]; p];
+            let mut qr_a = Vec::with_capacity(qr_rows);
+            let mut qr_b = Vec::with_capacity(qr_rows);
             for (row, &mask) in masks.iter().enumerate() {
                 let z = coalition::members(mask, m);
                 let y = evaluated[row + 2]
@@ -171,22 +198,51 @@ impl<M: Predict, K: Masker> Explainer for KernelExplainer<M, K> {
                     .map(|&value| self.link.forward(value))
                     .collect::<Result<Vec<_>>>()?;
                 let w = coalition::kernel_weight(m, mask.count_ones() as usize);
+                let use_qr = self.solver == KernelSolver::HouseholderQr;
+                let sqrt_weight = w.sqrt();
+                let mut design_row = if use_qr { vec![0.0; p] } else { Vec::new() };
+                let mut response_row = if use_qr { vec![0.0; o] } else { Vec::new() };
                 for i in 0..p {
                     let xi = (z[i] as u8 as f64) - (z[m - 1] as u8 as f64);
+                    if use_qr {
+                        design_row[i] = sqrt_weight * xi;
+                    }
                     for j in 0..p {
                         a[i][j] += w * xi * ((z[j] as u8 as f64) - (z[m - 1] as u8 as f64))
                     }
                     for k in 0..o {
-                        b[i][k] += w
-                            * xi
-                            * (y[k] - base[k] - (z[m - 1] as u8 as f64) * (full[k] - base[k]))
+                        let target = y[k] - base[k] - (z[m - 1] as u8 as f64) * (full[k] - base[k]);
+                        b[i][k] += w * xi * target;
+                        if use_qr {
+                            response_row[k] = sqrt_weight * target;
+                        }
                     }
                 }
+                if use_qr {
+                    qr_a.push(design_row);
+                    qr_b.push(response_row);
+                }
             }
-            for (i, row) in a.iter_mut().enumerate().take(p) {
-                row[i] += self.ridge
-            }
-            let beta = solve(a, b)?;
+            let beta = match self.solver {
+                KernelSolver::NormalEquations => {
+                    for (i, row) in a.iter_mut().enumerate().take(p) {
+                        row[i] += self.ridge
+                    }
+                    solve(a, b)?
+                }
+                KernelSolver::HouseholderQr => {
+                    if self.ridge > 0.0 {
+                        let scale = self.ridge.sqrt();
+                        for column in 0..p {
+                            let mut row = vec![0.0; p];
+                            row[column] = scale;
+                            qr_a.push(row);
+                            qr_b.push(vec![0.0; o]);
+                        }
+                    }
+                    solve_qr(qr_a, qr_b, p)?
+                }
+            };
             for k in 0..o {
                 let mut sum = 0.;
                 for j in 0..p {
@@ -235,6 +291,99 @@ fn solve(mut a: Vec<Vec<f64>>, mut b: Vec<Vec<f64>>) -> Result<Vec<Vec<f64>>> {
         }
     }
     Ok(b)
+}
+
+#[allow(clippy::needless_range_loop)]
+fn solve_qr(mut a: Vec<Vec<f64>>, mut b: Vec<Vec<f64>>, columns: usize) -> Result<Vec<Vec<f64>>> {
+    let rows = a.len();
+    if rows < columns || columns == 0 || b.len() != rows {
+        return Err(ShapError::SolverError(
+            "Kernel SHAP QR design is underdetermined".into(),
+        ));
+    }
+    let outputs = b.first().map_or(0, Vec::len);
+    if outputs == 0
+        || a.iter().any(|row| row.len() != columns)
+        || b.iter().any(|row| row.len() != outputs)
+    {
+        return Err(ShapError::SolverError(
+            "Kernel SHAP QR design is ragged or empty".into(),
+        ));
+    }
+    for column in 0..columns {
+        let norm = a[column..]
+            .iter()
+            .map(|row| row[column])
+            .fold(0.0_f64, f64::hypot);
+        if !norm.is_finite() || norm == 0.0 {
+            return Err(ShapError::SolverError(
+                "rank-deficient Kernel SHAP design; increase nsamples or ridge".into(),
+            ));
+        }
+        let alpha = if a[column][column] >= 0.0 {
+            -norm
+        } else {
+            norm
+        };
+        let mut reflector = a[column..]
+            .iter()
+            .map(|row| row[column])
+            .collect::<Vec<_>>();
+        reflector[0] -= alpha;
+        let reflector_norm = reflector.iter().copied().fold(0.0_f64, f64::hypot);
+        if !reflector_norm.is_finite() || reflector_norm == 0.0 {
+            return Err(ShapError::SolverError(
+                "failed to construct Kernel SHAP QR reflector".into(),
+            ));
+        }
+        for value in &mut reflector {
+            *value /= reflector_norm;
+        }
+        for target_column in column..columns {
+            let projection = (column..rows)
+                .map(|row| reflector[row - column] * a[row][target_column])
+                .sum::<f64>();
+            for row in column..rows {
+                a[row][target_column] -= 2.0 * reflector[row - column] * projection;
+            }
+        }
+        for output in 0..outputs {
+            let projection = (column..rows)
+                .map(|row| reflector[row - column] * b[row][output])
+                .sum::<f64>();
+            for row in column..rows {
+                b[row][output] -= 2.0 * reflector[row - column] * projection;
+            }
+        }
+        a[column][column] = alpha;
+        for row in column + 1..rows {
+            a[row][column] = 0.0;
+        }
+    }
+    let scale = (0..columns)
+        .map(|index| a[index][index].abs())
+        .fold(0.0_f64, f64::max);
+    let tolerance = f64::EPSILON * rows.max(columns) as f64 * scale.max(1.0);
+    let mut solution = vec![vec![0.0; outputs]; columns];
+    for row in (0..columns).rev() {
+        if a[row][row].abs() <= tolerance {
+            return Err(ShapError::SolverError(
+                "rank-deficient Kernel SHAP design; increase nsamples or ridge".into(),
+            ));
+        }
+        for output in 0..outputs {
+            let remainder = (row + 1..columns)
+                .map(|column| a[row][column] * solution[column][output])
+                .sum::<f64>();
+            solution[row][output] = (b[row][output] - remainder) / a[row][row];
+        }
+    }
+    if solution.iter().flatten().any(|value| !value.is_finite()) {
+        return Err(ShapError::SolverError(
+            "Kernel SHAP QR solution is non-finite".into(),
+        ));
+    }
+    Ok(solution)
 }
 #[cfg(test)]
 mod tests {
@@ -316,5 +465,67 @@ mod tests {
         for (actual, expected) in kernel.base_values().iter().zip(exact.base_values()) {
             assert!((actual - expected).abs() < 1e-12);
         }
+    }
+
+    #[test]
+    fn householder_qr_kernel_matches_exact_multi_output_values() {
+        fn predict(x: ArrayView2<'_, f64>) -> Result<Array2<f64>> {
+            Ok(Array2::from_shape_fn((x.nrows(), 2), |(row, output)| {
+                let values = x.row(row);
+                if output == 0 {
+                    values[0] * values[1] + values[2]
+                } else {
+                    values[0] - values[1] * values[2]
+                }
+            }))
+        }
+        let background = Background::new(array![[0., 0., 0.], [1., -1., 2.]]).unwrap();
+        let samples = array![[2., 3., -1.]];
+        let exact = ExactExplainer::new(FnModel::new(predict), background.clone())
+            .explain(samples.view())
+            .unwrap();
+        let kernel = KernelExplainer::new(FnModel::new(predict), background)
+            .with_solver(KernelSolver::HouseholderQr)
+            .with_ridge(0.0)
+            .explain(samples.view())
+            .unwrap();
+        for (actual, expected) in kernel.values().iter().zip(exact.values()) {
+            assert!((actual - expected).abs() < 1e-9, "{actual} != {expected}");
+        }
+    }
+
+    #[test]
+    fn householder_qr_solves_overdetermined_multi_output_system() {
+        let design = vec![
+            vec![1.0, 1.0],
+            vec![1.0, 1.0 + 1e-8],
+            vec![1.0, 1.0 - 1e-8],
+            vec![1.0, -1.0],
+        ];
+        let expected = [[2.0, -1.0], [-3.0, 4.0]];
+        let response = design
+            .iter()
+            .map(|row| {
+                (0..2)
+                    .map(|output| row[0] * expected[0][output] + row[1] * expected[1][output])
+                    .collect::<Vec<_>>()
+            })
+            .collect::<Vec<_>>();
+        let solution = solve_qr(design, response, 2).unwrap();
+        for row in 0..2 {
+            for output in 0..2 {
+                assert!((solution[row][output] - expected[row][output]).abs() < 1e-9);
+            }
+        }
+    }
+
+    #[test]
+    fn householder_qr_rejects_rank_deficient_design() {
+        assert!(solve_qr(
+            vec![vec![1.0, 1.0], vec![2.0, 2.0]],
+            vec![vec![1.0], vec![2.0]],
+            2,
+        )
+        .is_err());
     }
 }

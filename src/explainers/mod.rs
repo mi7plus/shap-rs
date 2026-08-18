@@ -16,7 +16,7 @@ pub use causal::{CausalExplainer, CausalGraph, CausalMaskingMode, CausalTabularM
 pub use deep::DeepExplainer;
 pub use exact::ExactExplainer;
 pub use gradient::GradientExplainer;
-pub use kernel::KernelExplainer;
+pub use kernel::{KernelExplainer, KernelSolver};
 pub use linear::{CorrelatedLinearExplainer, LinearExplainer};
 pub use partition::{
     correlation_partition, FeaturePartition, HierarchicalPartitionExplainer, PartitionExplainer,

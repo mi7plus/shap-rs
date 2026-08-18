@@ -41,6 +41,13 @@ Accelerated runtimes implement `AcceleratedPredict` and bind a device through
 
 Tree frameworks should convert into `TreeArrays` or the native `Tree` model.
 The `json-adapters` feature includes direct XGBoost and LightGBM dump readers.
+Native-library adapters are added only when an upstream public API exposes the
+complete topology, split comparison, leaf outputs, node covers, and missing
+routing needed by TreeSHAP. SmartCore keeps its base-tree representation
+crate-private, while Linfa Trees exposes traversal and splits but not covers or
+missing routing. Prediction-only adapters would silently change expected-value
+semantics, so both libraries should continue through caller-built `TreeArrays`
+until those fields are public.
 
 ## Resource control
 

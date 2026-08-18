@@ -31,3 +31,22 @@ Cross-platform fixtures use the listed tolerances on Linux, Windows, and macOS.
 Tests must not depend on fused multiply-add behavior or iteration order from an
 unordered collection. CPU and future GPU adapters must document any wider
 backend-specific tolerance before being enabled in compatibility CI.
+
+## Accelerated-device contract
+
+`check_device_equivalence` makes the CPU/device contract executable. CPU
+repeated runs are bit-exact by default. CUDA, Metal, Vulkan, and WebGPU use
+combined `1e-5` absolute/relative CPU-equivalence tolerances and `1e-6`
+repeated-run tolerances over three device executions. Models that require wider
+tolerances must opt in explicitly and record the reason beside their fixture.
+Non-finite values, changing output shapes, and drift outside the configured
+limits fail validation. Determinism refers to fixed inputs, model state, device,
+and build; stochastic models must freeze their RNG before validation.
+
+Kernel SHAP defaults to its allocation-light normal-equations solver. For
+large or poorly conditioned sampled designs, select
+`KernelSolver::HouseholderQr`; it operates on the weighted design directly and
+therefore avoids squaring its condition number. The QR backend is implemented
+in-crate to preserve the Rust 1.80 MSRV and avoid a heavy mandatory linear
+algebra dependency. Ridge rows are appended to the QR design exactly rather
+than added after factorization.

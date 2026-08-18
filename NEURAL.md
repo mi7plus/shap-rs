@@ -20,3 +20,14 @@ embeddings, recurrent/hidden state, ragged tensors, and structured outputs are
 not flattened implicitly. Callers must expose an explicit dense model boundary
 or provide a custom adapter. Device behavior is determined by the supplied Burn
 backend/device; conversion to the public explanation format uses `f64`.
+
+## Device coalition batches
+
+Model-agnostic explainers assemble all masked rows covered by
+`EvaluationConfig::coalition_batch_size` into one owned array. `DeviceModel`
+forwards that allocation through `AcceleratedPredict::predict_owned_on`, so a
+device adapter can construct or upload one tensor without another host copy.
+`FnOwnedAcceleratedModel` exposes this fast path to closure-based integrations.
+The borrowed methods remain available for callers that retain their input.
+Larger coalition batches reduce transfer count at the cost of host and device
+memory; `max_model_rows` remains a total evaluation budget, not a batch limit.

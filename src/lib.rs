@@ -19,6 +19,7 @@ pub mod model;
 #[cfg(feature = "parallel")]
 pub mod parallel;
 pub mod plot;
+pub mod sparse;
 pub mod tree;
 pub use background::Background;
 pub use error::{Result, ShapError};
@@ -27,16 +28,21 @@ pub use explainer::{Explainer, ExplainerExt, MetadataExplainer};
 pub use explanation::{AttributionSemantics, Explanation, UncertainExplanation};
 pub use link::Link;
 pub use masker::{
-    ConditionalTabularMasker, FixedMasker, FnMasker, GroupedMasker, ImageMasker, IndependentMasker,
-    Masker, TextMasker,
+    ConditionalTabularMasker, FixedMasker, FnMasker, FnStreamingMasker, GroupedMasker,
+    ImageBaseline, ImageMasker, IndependentMasker, InpaintingImageMasker, Masker,
+    SegmentedImageMasker, SpecialTokenPolicy, TextMasker, TextToken, TokenizedTextMasker,
 };
 pub use metadata::{FeatureKind, FeatureMetadata, OutputKind, OutputMetadata};
 pub use model::{
-    AcceleratedPredict, DeepAttribution, DeviceModel, DifferentiablePredict, ExecutionDevice,
-    FnAcceleratedModel, FnModel, Predict,
+    AcceleratedPredict, CachedModel, DeepAttribution, DeviceModel, DifferentiablePredict,
+    ExecutionDevice, FnAcceleratedModel, FnModel, FnOwnedAcceleratedModel, Predict,
 };
 #[cfg(feature = "parallel")]
 pub use parallel::ParallelExplainerExt;
+pub use sparse::{
+    FnSparseModel, SparseIndependentMasker, SparseMatrix, SparsePermutationExplainer,
+    SparsePredict, SparseRowView,
+};
 pub use tree::{
     MissingBranch, MissingValuePolicy, Node, SplitComparison, Tree, TreeArrays, TreeEnsemble,
 };
